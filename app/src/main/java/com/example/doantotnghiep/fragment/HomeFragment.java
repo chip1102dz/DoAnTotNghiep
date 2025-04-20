@@ -45,18 +45,13 @@ public class HomeFragment extends Fragment {
     private View mView;
     private ViewPager2 mViewPagerProductFeatured;
     private CircleIndicator3 mCircleIndicatorProductFeatured;
-    private ViewPager2 viewPagerCategory;
-    private TabLayout tabCategory;
     private EditText edtSearchName;
     private ImageView imgSearch;
 
     private List<Product> listProductFeatured;
     private List<Category> listCategory;
 
-    private List<CategoryHome> listCategoryHome;
-
     private ValueEventListener mCategoryValueEventListener;
-    private ValueEventListener mProductValueEventListener;
 
 
     private final Handler mHandlerBanner = new Handler();
@@ -85,7 +80,7 @@ public class HomeFragment extends Fragment {
         GridLayoutManager gridLayout = new GridLayoutManager (getContext(),5 );
         recyclerView.setLayoutManager(gridLayout);
         recyclerView.setAdapter(categoryHomeAdapter);
-
+        initUi();
         getListCategoryHome();
         displayListBanner();
 
@@ -94,9 +89,9 @@ public class HomeFragment extends Fragment {
     private void initUi() {
         mViewPagerProductFeatured = binding.viewPagerProductFeatured;
         mCircleIndicatorProductFeatured = binding.indicatorProductFeatured;
-        viewPagerCategory = binding.viewPagerCategory;
+        ViewPager2 viewPagerCategory = binding.viewPagerCategory;
         viewPagerCategory.setUserInputEnabled(false);
-        tabCategory = binding.tabCategory;
+        TabLayout tabCategory = binding.tabCategory;
     }
 
     private void getListCategory() {
@@ -107,7 +102,7 @@ public class HomeFragment extends Fragment {
 
 
     public List<CategoryHome> getListCategoryHome(){
-        listCategoryHome = new ArrayList<>();
+        List<CategoryHome> listCategoryHome = new ArrayList<>();
         listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
         listCategoryHome.add(new CategoryHome(R.drawable.chicken, "Gà rán"));
         listCategoryHome.add(new CategoryHome(R.drawable.rice, "Cơm"));
@@ -125,7 +120,7 @@ public class HomeFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        mProductValueEventListener = new ValueEventListener() {
+        ValueEventListener mProductValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (listProductFeatured != null) {
