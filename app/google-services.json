@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "154545289006",
+    "firebase_url": "https://doantotnghiep-330ab-default-rtdb.firebaseio.com",
+    "project_id": "doantotnghiep-330ab",
+    "storage_bucket": "doantotnghiep-330ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154545289006:android:27bf7d0b82550e49936cbf",
+        "android_client_info": {
+          "package_name": "com.example.doantotnghiep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdIk-Gp6KXqYcASgHXn00_zriZsEpUC5w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

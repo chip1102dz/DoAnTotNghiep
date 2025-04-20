@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/Home_Product_Featured_Search"
+    android:clickable="true"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_white_corner_6_border_gray"
+    cardview:cardCornerRadius="4dp"
+    android:padding="7dp">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/search"/>
+    <TextView
+        android:id="@+id/Home_Product_Featured_Title"
+        android:textColor="#2d2d2d"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:text="List Title"/>
+
+</LinearLayout>

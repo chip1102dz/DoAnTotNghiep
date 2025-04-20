@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_marginStart="15dp">
+
+    <ImageView
+        android:id="@+id/img_category_home"
+        android:layout_width="@dimen/define_dimen_40"
+        android:layout_height="@dimen/define_dimen_40"
+        android:src="@drawable/danh_muc" />
+
+    <TextView
+        android:id="@+id/tv_category_name_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/define_dimen_5"
+        android:text="Danh Mục"
+        android:textSize="12sp" />
+
+</LinearLayout>
