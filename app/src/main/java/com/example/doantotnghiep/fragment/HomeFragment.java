@@ -55,7 +55,6 @@ public class HomeFragment extends Fragment {
 
     private List<CategoryHome> listCategoryHome;
 
-    private List<Banner> listBanner;
     private ValueEventListener mCategoryValueEventListener;
     private ValueEventListener mProductValueEventListener;
 
@@ -64,10 +63,10 @@ public class HomeFragment extends Fragment {
     private final Runnable mRunnableBanner = new Runnable() {
         @Override
         public void run() {
-            if (mViewPagerProductFeatured == null || listBanner == null || listBanner.isEmpty()) {
+            if (mViewPagerProductFeatured == null || listProductFeatured == null || listProductFeatured.isEmpty()) {
                 return;
             }
-            if (mViewPagerProductFeatured.getCurrentItem() == listBanner.size() - 1) {
+            if (mViewPagerProductFeatured.getCurrentItem() == listProductFeatured.size() - 1) {
                 mViewPagerProductFeatured.setCurrentItem(0);
                 return;
             }
