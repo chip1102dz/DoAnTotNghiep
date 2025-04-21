@@ -12,7 +12,7 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.example.doantotnghiep.databinding.ItemBannerBinding;
 import com.example.doantotnghiep.listener.IClickProductListener;
 import com.example.doantotnghiep.model.Product;
-import com.example.doantotnghiep.model.Test.Banner;
+
 import com.example.doantotnghiep.utils.GlideUtils;
 
 import java.util.List;

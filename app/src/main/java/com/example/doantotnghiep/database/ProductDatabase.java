@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.doantotnghiep.model.Product;
 
 
-@Database(entities = {Product.class}, version = 1)
+@Database(entities = {Product.class}, version = 1, exportSchema = false)
 public abstract class ProductDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "product.db";

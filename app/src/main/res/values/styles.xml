@@ -5,6 +5,7 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/white</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.popUpOverlay" parent="ThemeOverlay.AppCompat.Light" />
     <style name="TextViewStyle" parent="android:Widget.TextView">

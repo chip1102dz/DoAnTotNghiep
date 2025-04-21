@@ -5,12 +5,14 @@ import android.content.Context;
 
 import com.example.doantotnghiep.prefs.DataStoreManager;
 import com.google.firebase.FirebaseApp;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MyApplication extends Application {
 
-    private static final String FIREBASE_URL = "https://doantotnghiep-330ab-default-rtdb.firebaseio.com/";
+
+    private static final String FIREBASE_URL = "https://doantotnghieppro-d2186-default-rtdb.firebaseio.com";
     private FirebaseDatabase mFirebaseDatabase;
 
     public static MyApplication get(Context context) {

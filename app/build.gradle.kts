@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -35,15 +36,19 @@ android {
 }
 
 dependencies {
+    implementation ("org.greenrobot:eventbus:3.3.1")
+    implementation ("com.google.code.gson:gson:2.8.9")
     implementation (libs.github.glide)
     implementation (libs.circleimageview)
     implementation (libs.circleindicator)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.crashlytics.buildtools)
     annotationProcessor (libs.androidx.room.room.compiler)
     implementation (libs.androidx.room.runtime)
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

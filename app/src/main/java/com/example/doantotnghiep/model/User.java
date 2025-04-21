@@ -1,5 +1,6 @@
 package com.example.doantotnghiep.model;
 
+
 import com.google.gson.Gson;
 
 public class User {
