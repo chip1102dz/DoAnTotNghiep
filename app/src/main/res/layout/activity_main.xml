@@ -11,7 +11,68 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager_2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_cart_bottom"/>
+
+    <RelativeLayout
+        android:id="@+id/layout_cart_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_above="@+id/bottom_navigation"
+        android:layout_margin="@dimen/define_dimen_10"
+        android:background="@drawable/bg_button_enable_corner_10"
+        android:padding="@dimen/define_dimen_10">
+
+        <ImageView
+            android:id="@+id/img_cart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_cart_white"
+            tools:ignore="ContentDescription" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/define_dimen_10"
+            android:layout_toStartOf="@+id/tv_amount"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_count_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_small" />
+
+            <TextView
+                android:id="@+id/tv_products_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_marginTop="@dimen/define_dimen_2"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_xsmall" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/define_dimen_10"
+            android:layout_toStartOf="@+id/img_cart"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_normal"
+            android:textStyle="bold" />
+    </RelativeLayout>
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

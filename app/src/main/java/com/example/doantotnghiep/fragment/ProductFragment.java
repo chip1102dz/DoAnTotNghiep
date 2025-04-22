@@ -17,12 +17,14 @@ import android.widget.Toast;
 
 import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
+import com.example.doantotnghiep.activity.ProductDetailActivity;
 import com.example.doantotnghiep.adapter.HomeProductRatingAdapter;
 import com.example.doantotnghiep.adapter.ProductAdapter;
 import com.example.doantotnghiep.databinding.FragmentProductBinding;
 import com.example.doantotnghiep.listener.IClickProductListener;
 import com.example.doantotnghiep.model.Product;
 import com.example.doantotnghiep.utils.Constant;
+import com.example.doantotnghiep.utils.GlobalFunction;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -106,9 +108,9 @@ public class ProductFragment extends Fragment {
         productAdapter = new ProductAdapter(listProductDisplay, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
-//                Bundle bundle = new Bundle();
-//                bundle.putLong(Constant.PRODUCT_ID, product.getId());
-//                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constant.PRODUCT_ID, product.getId());
+                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
             }
         });
         rcvProduct.setAdapter(productAdapter);

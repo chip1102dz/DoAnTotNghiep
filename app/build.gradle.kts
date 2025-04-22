@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation(libs.material.dialogs)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     testImplementation(libs.junit)

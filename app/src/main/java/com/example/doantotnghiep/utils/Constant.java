@@ -16,9 +16,9 @@ public class Constant {
     public static final String AMOUNT_VALUE = "amount_value";
 
     public static final int TYPE_GOPAY = 1;
-    public static final int TYPE_CREDIT = 2;
-    public static final int TYPE_BANK = 3;
-    public static final int TYPE_ZALO_PAY = 4;
+//    public static final int TYPE_CREDIT = 2;
+//    public static final int TYPE_BANK = 3;
+    public static final int TYPE_ZALO_PAY = 2;
 
     public static final String ADMIN_EMAIL_FORMAT = "@admin.com";
 

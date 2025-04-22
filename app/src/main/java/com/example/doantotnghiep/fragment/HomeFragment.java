@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
@@ -25,6 +26,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
+import com.example.doantotnghiep.activity.ProductDetailActivity;
 import com.example.doantotnghiep.adapter.BannerAdapter;
 import com.example.doantotnghiep.adapter.CategoryHomeAdapter;
 import com.example.doantotnghiep.adapter.CategoryPagerAdapter;
@@ -41,6 +43,7 @@ import com.example.doantotnghiep.model.Filter;
 import com.example.doantotnghiep.model.Product;
 
 import com.example.doantotnghiep.utils.Constant;
+import com.example.doantotnghiep.utils.GlobalFunction;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +58,7 @@ import me.relex.circleindicator.CircleIndicator3;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
+    SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView rcvFilter;
     private RecyclerView rcvSearchHomeFeature;
     private RecyclerView rcvProductFeatured, rcvProductRating;
@@ -116,6 +120,7 @@ public class HomeFragment extends Fragment {
         setListSearchFeatureDisplay();
         getListProductRating();
         getListCategory();
+        setLoadMoreAction();
         return binding.getRoot();
     }
 
@@ -131,6 +136,7 @@ public class HomeFragment extends Fragment {
         tabCategory = binding.tabCategory;
         loadingProductFeature = binding.LoadingHomeProductFeatured;
         loadingProductRating = binding.LoadingHomeRating;
+        swipeRefreshLayout = binding.refreshLayout;
     }
 
     public List<CategoryHome> getListCategoryHome() {
@@ -186,9 +192,9 @@ public class HomeFragment extends Fragment {
         BannerAdapter adapter = new BannerAdapter(listProductBanner, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
-//                Bundle bundle = new Bundle();
-//                bundle.putLong(Constant.PRODUCT_ID, product.getId());
-//                //GlobalFunction.startActivity(HomeFragment.this.getActivity(), ProductDetailActivity.class, bundle);
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constant.PRODUCT_ID, product.getId());
+                GlobalFunction.startActivity(HomeFragment.this.getActivity(), ProductDetailActivity.class, bundle);
             }
         });
         mViewPagerProductFeatured.setAdapter(adapter);
@@ -272,9 +278,9 @@ public class HomeFragment extends Fragment {
         productFeaturedAdapter = new HomeProductFeaturedAdapter(listProductDisplay, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
-//                Bundle bundle = new Bundle();
-//                bundle.putLong(Constant.PRODUCT_ID, product.getId());
-//                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constant.PRODUCT_ID, product.getId());
+                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
             }
         });
 
@@ -316,6 +322,7 @@ public class HomeFragment extends Fragment {
     @SuppressLint("NotifyDataSetChanged")
     private void reloadListProductFeatured() {
         if (productFeaturedAdapter != null) productFeaturedAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void setListSearchFeatureDisplay(){
@@ -371,9 +378,9 @@ public class HomeFragment extends Fragment {
         productRatingAdapter = new HomeProductRatingAdapter(listProductRatingDisplay, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
-//                Bundle bundle = new Bundle();
-//                bundle.putLong(Constant.PRODUCT_ID, product.getId());
-//                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constant.PRODUCT_ID, product.getId());
+                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
             }
         });
         rcvProductRating.setAdapter(productRatingAdapter);
@@ -382,6 +389,7 @@ public class HomeFragment extends Fragment {
     @SuppressLint("NotifyDataSetChanged")
     private void reloadListProductRating() {
         if (productFeaturedAdapter != null) productFeaturedAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void getListCategory() {
@@ -424,6 +432,14 @@ public class HomeFragment extends Fragment {
                     }
                 })
                 .attach();
+    }
+    private void setLoadMoreAction() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getListProductFeatured();
+            }
+        });
     }
 
     @Override
