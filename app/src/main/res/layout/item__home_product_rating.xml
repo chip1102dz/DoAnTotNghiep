@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/layout_product_feature"
+    android:id="@+id/layout_product_rating"
     android:clickable="true"
     android:layout_width="110dp"
     android:layout_height="165dp"
@@ -11,14 +11,14 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/img_product_feature"
+        android:id="@+id/img_product_rating"
         android:layout_width="110dp"
         android:layout_height="110dp"
         android:scaleType="centerCrop"
         android:layout_gravity="center_horizontal" />
 
     <TextView
-        android:id="@+id/tv_product_feature"
+        android:id="@+id/tv_product_rating"
         android:textColor="@color/black"
         android:textSize="14sp"
         android:gravity="center"

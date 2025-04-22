@@ -1,13 +1,13 @@
 package com.example.doantotnghiep.fragment;
 
 import static android.view.View.GONE;
-import static com.example.doantotnghiep.utils.GlobalFunction.getTextSearch;
+
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -26,19 +27,22 @@ import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.adapter.BannerAdapter;
 import com.example.doantotnghiep.adapter.CategoryHomeAdapter;
+import com.example.doantotnghiep.adapter.CategoryPagerAdapter;
 import com.example.doantotnghiep.adapter.FilterAdapter;
 import com.example.doantotnghiep.adapter.HomeProductFeaturedAdapter;
+import com.example.doantotnghiep.adapter.HomeProductRatingAdapter;
+import com.example.doantotnghiep.adapter.SearchFeatureAdapter;
 import com.example.doantotnghiep.databinding.FragmentHomeBinding;
 import com.example.doantotnghiep.listener.IClickProductListener;
+
 import com.example.doantotnghiep.model.Category;
 import com.example.doantotnghiep.model.CategoryHome;
 import com.example.doantotnghiep.model.Filter;
 import com.example.doantotnghiep.model.Product;
-import com.example.doantotnghiep.utils.Constant;
 
-import com.example.doantotnghiep.utils.GlobalFunction;
-import com.example.doantotnghiep.utils.StringUtil;
+import com.example.doantotnghiep.utils.Constant;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -50,27 +54,28 @@ import java.util.List;
 import me.relex.circleindicator.CircleIndicator3;
 
 public class HomeFragment extends Fragment {
-
     private FragmentHomeBinding binding;
     private RecyclerView rcvFilter;
-    private RecyclerView rcvProduct;
+    private RecyclerView rcvSearchHomeFeature;
+    private RecyclerView rcvProductFeatured, rcvProductRating;
     private ViewPager2 mViewPagerProductFeatured;
     private CircleIndicator3 mCircleIndicatorProductFeatured;
-    private List<Product> listProductKeyWord;
     private List<Filter> listFilter;
-    private List<Product> listProduct;
-    private List<Product> listProductDisplay;
-    private List<Product> listProductFeatured;
+    private List<Category> listCategory;
+    private TabLayout tabCategory;
+    private ViewPager2 viewPagerCategory;
+    private List<Product> listProductFeatured, listProductRating, listProductBanner;
+    private List<Product> listProductDisplay, listProductRatingDisplay;
     private FilterAdapter filterAdapter;
     private Filter currentFilter;
     private long categoryId;
-
-    ProgressBar loadingProductFeature;
-    private String keyword = "";
-    private HomeProductFeaturedAdapter productAdapter;
+    ProgressBar loadingProductFeature, loadingProductRating;
+    private HomeProductFeaturedAdapter productFeaturedAdapter;
+    private HomeProductRatingAdapter productRatingAdapter;
     private ValueEventListener mCategoryValueEventListener;
-    private ValueEventListener mProductValueEventListener;
-    private ValueEventListener mValueEventListener;
+    private ValueEventListener mValueProductFeaturedListener;
+
+    private ValueEventListener mValueProductRatingListener;
 
 
     private final Handler mHandlerBanner = new Handler();
@@ -103,11 +108,14 @@ public class HomeFragment extends Fragment {
 
 
         initUi();
-        listProductFeatured = new ArrayList<>();
+
+        displayListProductFeatured();
         getListProductBanner();
         getListFilter();
-        getListProduct();
-        displayListProduct();
+        getListProductFeatured();
+        setListSearchFeatureDisplay();
+        getListProductRating();
+        getListCategory();
         return binding.getRoot();
     }
 
@@ -115,19 +123,15 @@ public class HomeFragment extends Fragment {
         mViewPagerProductFeatured = binding.viewPagerProductFeatured;
         mCircleIndicatorProductFeatured = binding.indicatorProductFeatured;
         rcvFilter = binding.rcvFilter;
-        rcvProduct = binding.rcvHomeProductFeatured;
-
-        ViewPager2 viewPagerCategory = binding.viewPagerCategory;
+        rcvSearchHomeFeature = binding.rcvHomeSearchFeature;
+        rcvProductFeatured = binding.rcvHomeProductFeatured;
+        rcvProductRating = binding.rcvHomeProductRating;
+        viewPagerCategory = binding.viewPagerCategory;
         viewPagerCategory.setUserInputEnabled(false);
-        TabLayout tabCategory = binding.tabCategory;
+        tabCategory = binding.tabCategory;
         loadingProductFeature = binding.LoadingHomeProductFeatured;
+        loadingProductRating = binding.LoadingHomeRating;
     }
-
-    private void getListCategory() {
-        if (getActivity() == null) return;
-
-    }
-
 
     public List<CategoryHome> getListCategoryHome() {
         List<CategoryHome> listCategoryHome = new ArrayList<>();
@@ -149,18 +153,18 @@ public class HomeFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        mProductValueEventListener = new ValueEventListener() {
+        ValueEventListener mBannerValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (listProductFeatured != null) {
-                    listProductFeatured.clear();
+                if (listProductBanner != null) {
+                    listProductBanner.clear();
                 } else {
-                    listProductFeatured = new ArrayList<>();
+                    listProductBanner = new ArrayList<>();
                 }
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Product product = dataSnapshot.getValue(Product.class);
                     if (product != null && product.isFeatured()) {
-                        listProductFeatured.add(product);
+                        listProductBanner.add(product);
                     }
                 }
                 displayListBanner();
@@ -172,14 +176,14 @@ public class HomeFragment extends Fragment {
             }
         };
         MyApplication.get(getActivity()).getProductDatabaseReference()
-                .addValueEventListener(mProductValueEventListener);
+                .addValueEventListener(mBannerValueEventListener);
     }
 
     private void displayListBanner() {
-        if (listProductFeatured == null || listProductFeatured.isEmpty()) {
+        if (listProductBanner == null || listProductBanner.isEmpty()) {
             return;
         }
-        BannerAdapter adapter = new BannerAdapter(listProductFeatured, new IClickProductListener() {
+        BannerAdapter adapter = new BannerAdapter(listProductBanner, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
 //                Bundle bundle = new Bundle();
@@ -221,7 +225,7 @@ public class HomeFragment extends Fragment {
         for (Filter filterEntity : listFilter) {
             if (filterEntity.getId() == filter.getId()) {
                 filterEntity.setSelected(true);
-                setListProductDisplay(filterEntity);
+                setListProductDisplayFeatured(filterEntity);
                 currentFilter = filterEntity;
             } else {
                 filterEntity.setSelected(false);
@@ -230,42 +234,42 @@ public class HomeFragment extends Fragment {
         if (filterAdapter != null) filterAdapter.notifyDataSetChanged();
     }
 
-    private void getListProduct() {
+    private void getListProductFeatured() {
         if (getActivity() == null) return;
-        mValueEventListener = new ValueEventListener() {
+        mValueProductFeaturedListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 loadingProductFeature.setVisibility(GONE);
-                if (listProduct != null) {
-                    listProduct.clear();
+                if (listProductFeatured != null) {
+                    listProductFeatured.clear();
                 } else {
-                    listProduct = new ArrayList<>();
+                    listProductFeatured = new ArrayList<>();
                 }
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Product product = dataSnapshot.getValue(Product.class);
                     if (product != null) {
-                        listProduct.add(0, product);
+                        listProductFeatured.add(0, product);
                     }
                 }
-                setListProductDisplay(new Filter(Filter.TYPE_FILTER_ALL, getString(R.string.filter_all)));
+                setListProductDisplayFeatured(new Filter(Filter.TYPE_FILTER_ALL, getString(R.string.filter_all)));
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Toast.makeText(getContext(), "Lỗi rồi", Toast.LENGTH_SHORT).show();
             }
         };
         MyApplication.get(getActivity()).getProductDatabaseReference()
-                .orderByChild(Constant.CATEGORY_ID).equalTo(categoryId)
-                .addValueEventListener(mValueEventListener);
+                .addValueEventListener(mValueProductFeaturedListener);
     }
 
-    private void displayListProduct() {
+    private void displayListProductFeatured() {
         if (getActivity() == null) return;
         listProductDisplay = new ArrayList<>();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        rcvProduct.setLayoutManager(linearLayoutManager);
-        productAdapter = new HomeProductFeaturedAdapter(listProductDisplay, new IClickProductListener() {
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rcvProductFeatured.setLayoutManager(linearLayoutManager);
+        productFeaturedAdapter = new HomeProductFeaturedAdapter(listProductDisplay, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
 //                Bundle bundle = new Bundle();
@@ -274,11 +278,11 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        rcvProduct.setAdapter(productAdapter);
+        rcvProductFeatured.setAdapter(productFeaturedAdapter);
     }
 
-    private void setListProductDisplay(@NonNull Filter filter) {
-        if (listProduct == null || listProduct.isEmpty()) return;
+    private void setListProductDisplayFeatured(@NonNull Filter filter) {
+        if (listProductFeatured == null || listProductFeatured.isEmpty()) return;
         if (listProductDisplay != null) {
             listProductDisplay.clear();
         } else {
@@ -286,42 +290,153 @@ public class HomeFragment extends Fragment {
         }
         switch (filter.getId()) {
             case Filter.TYPE_FILTER_ALL:
-                listProductDisplay.addAll(listProduct);
+                listProductDisplay.addAll(listProductFeatured);
                 break;
 
             case Filter.TYPE_FILTER_RATE:
-                listProductDisplay.addAll(listProduct);
+                listProductDisplay.addAll(listProductFeatured);
                 Collections.sort(listProductDisplay,
                         (product1, product2) -> Double.compare(product2.getRate(), product1.getRate()));
                 break;
 
             case Filter.TYPE_FILTER_PRICE:
-                listProductDisplay.addAll(listProduct);
+                listProductDisplay.addAll(listProductFeatured);
                 Collections.sort(listProductDisplay,
                         (product1, product2) -> Integer.compare(product1.getRealPrice(), product2.getRealPrice()));
                 break;
 
             case Filter.TYPE_FILTER_PROMOTION:
-                for (Product product : listProduct) {
+                for (Product product : listProductFeatured) {
                     if (product.getSale() > 0) listProductDisplay.add(product);
                 }
                 break;
         }
-        reloadListProduct();
+        reloadListProductFeatured();
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    private void reloadListProductFeatured() {
+        if (productFeaturedAdapter != null) productFeaturedAdapter.notifyDataSetChanged();
     }
 
+    private void setListSearchFeatureDisplay(){
+        List<Category> listSearchFeature = new ArrayList<>();
+        listSearchFeature.add(new Category("Tất cả"));
+        listSearchFeature.add(new Category("Điện thoại - Máy tính"));
+        listSearchFeature.add(new Category("Thời trang"));
+        listSearchFeature.add(new Category("Sách"));
+        listSearchFeature.add(new Category("Làm đẹp - Sức khỏe"));
+        listSearchFeature.add(new Category("Đồ gia dụng"));
+
+        LinearLayoutManager layoutManager2 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        rcvSearchHomeFeature = binding.rcvHomeSearchFeature;
+        rcvSearchHomeFeature.setLayoutManager(layoutManager2);
+        SearchFeatureAdapter searchFeatureAdapter = new SearchFeatureAdapter(listSearchFeature,getContext());
+        rcvSearchHomeFeature.setAdapter(searchFeatureAdapter);
+    }
+
+    private void getListProductRating() {
+        if (getActivity() == null) return;
+        mValueProductRatingListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                loadingProductRating.setVisibility(GONE);
+                if (listProductRating != null) {
+                    listProductRating.clear();
+                } else {
+                    listProductRating = new ArrayList<>();
+                }
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Product product = dataSnapshot.getValue(Product.class);
+                    if (product != null) {
+                        listProductRating.add(0, product);
+                    }
+                }
+                displayListProductRating();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Lỗi rồi", Toast.LENGTH_SHORT).show();
+            }
+        };
+        MyApplication.get(getActivity()).getProductDatabaseReference()
+                .addValueEventListener(mValueProductRatingListener);
+    }
+    private void displayListProductRating() {
+        if (getActivity() == null) return;
+        listProductRatingDisplay = new ArrayList<>();
+        listProductRatingDisplay.addAll(listProductRating);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rcvProductRating.setLayoutManager(linearLayoutManager);
+        productRatingAdapter = new HomeProductRatingAdapter(listProductRatingDisplay, new IClickProductListener() {
+            @Override
+            public void onClickProductItem(Product product) {
+//                Bundle bundle = new Bundle();
+//                bundle.putLong(Constant.PRODUCT_ID, product.getId());
+//                GlobalFunction.startActivity(getActivity(), ProductDetailActivity.class, bundle);
+            }
+        });
+        rcvProductRating.setAdapter(productRatingAdapter);
+        reloadListProductRating();
+    }
     @SuppressLint("NotifyDataSetChanged")
-    private void reloadListProduct() {
-        if (productAdapter != null) productAdapter.notifyDataSetChanged();
+    private void reloadListProductRating() {
+        if (productFeaturedAdapter != null) productFeaturedAdapter.notifyDataSetChanged();
+    }
+
+    private void getListCategory() {
+        if (getActivity() == null) return;
+        mCategoryValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (listCategory != null) {
+                    listCategory.clear();
+                } else {
+                    listCategory = new ArrayList<>();
+                }
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Category category = dataSnapshot.getValue(Category.class);
+                    if (category != null) {
+                        listCategory.add(category);
+                    }
+                }
+                displayTabsCategory();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        MyApplication.get(getActivity()).getCategoryDatabaseReference()
+                .addValueEventListener(mCategoryValueEventListener);
+    }
+    private void displayTabsCategory() {
+        if (getActivity() == null || listCategory == null || listCategory.isEmpty()) return;
+        viewPagerCategory.setOffscreenPageLimit(listCategory.size());
+        CategoryPagerAdapter adapter = new CategoryPagerAdapter(getActivity(), listCategory);
+        viewPagerCategory.setAdapter(adapter);
+        new TabLayoutMediator(tabCategory, viewPagerCategory,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        tab.setText(listCategory.get(position).getName().toLowerCase());
+                    }
+                })
+                .attach();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (filterAdapter != null) filterAdapter.release();
-        if (getActivity() != null && mValueEventListener != null) {
+        if (getActivity() != null && mValueProductFeaturedListener != null) {
             MyApplication.get(getActivity()).getProductDatabaseReference()
-                    .removeEventListener(mValueEventListener);
+                    .removeEventListener(mValueProductFeaturedListener);
+        }
+        if (getActivity() != null && mValueProductRatingListener != null) {
+            MyApplication.get(getActivity()).getProductDatabaseReference()
+                    .removeEventListener(mValueProductRatingListener);
         }
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);

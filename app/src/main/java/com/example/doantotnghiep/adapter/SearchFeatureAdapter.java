@@ -11,37 +11,37 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.databinding.ItemFilterBinding;
+import com.example.doantotnghiep.fragment.HomeFragment;
 import com.example.doantotnghiep.listener.IClickFilterListener;
+import com.example.doantotnghiep.listener.IClickSearchListener;
+import com.example.doantotnghiep.model.Category;
 import com.example.doantotnghiep.model.Filter;
 
 import java.util.List;
 
-public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterViewHolder>{
-
+public class SearchFeatureAdapter extends RecyclerView.Adapter<SearchFeatureAdapter.SearchFeatureViewHolder>{
     private Context context;
-    private final List<Filter> listFilter;
-    private final IClickFilterListener iClickFilterListener;
+    private final List<Category> mData;
 
-    public FilterAdapter(Context context, List<Filter> listFilter, IClickFilterListener iClickFilterListener) {
+
+    public SearchFeatureAdapter(List<Category> mData, Context context) {
+        this.mData = mData;
         this.context = context;
-        this.listFilter = listFilter;
-        this.iClickFilterListener = iClickFilterListener;
     }
-
 
     @NonNull
     @Override
-    public FilterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SearchFeatureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemFilterBinding binding = ItemFilterBinding.inflate(LayoutInflater.from(parent.getContext()), parent,false);
-        return new FilterViewHolder(binding);
+        return new SearchFeatureViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FilterViewHolder holder, int position) {
-        Filter filter = listFilter.get(position);
-        if (filter == null) return;
-        holder.binding.tvTitleFilter.setText(filter.getName());
-        if (filter.isSelected()) {
+    public void onBindViewHolder(@NonNull SearchFeatureViewHolder holder, int position) {
+        Category category = mData.get(position);
+        if (category == null) return;
+        holder.binding.tvTitleFilter.setText(category.getName());
+        if (category.isSelected()) {
             holder.binding.layoutFilter.setBackgroundResource(R.drawable.bg_button_enable_corner_10);
             int color = ContextCompat.getColor(context, R.color.white);
             holder.binding.tvTitleFilter.setTextColor(color);
@@ -49,22 +49,15 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterView
             holder.binding.layoutFilter.setBackgroundResource(R.drawable.bg_button_disable_corner_10);
             int color = ContextCompat.getColor(context, R.color.textColorHeading);
             holder.binding.tvTitleFilter.setTextColor(color);
-
         }
 
-        holder.binding.layoutFilter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                iClickFilterListener.onClickFilterItem(filter);
-            }
-        });
 
     }
 
     @Override
     public int getItemCount() {
-        if(listFilter!=null){
-            return listFilter.size();
+        if(mData!=null){
+            return mData.size();
         }
         return 0;
     }
@@ -72,9 +65,9 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterView
         if (context != null) context = null;
     }
 
-    public static class FilterViewHolder extends RecyclerView.ViewHolder {
+    public static class SearchFeatureViewHolder extends RecyclerView.ViewHolder {
         ItemFilterBinding binding;
-        public FilterViewHolder(@NonNull ItemFilterBinding binding) {
+        public SearchFeatureViewHolder(@NonNull ItemFilterBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

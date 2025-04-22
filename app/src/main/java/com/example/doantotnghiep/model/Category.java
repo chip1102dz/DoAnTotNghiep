@@ -6,14 +6,19 @@ public class Category implements Serializable {
 
     private int id;
     private String name;
-
-    public Category() {}
-
-    public Category(int id, String name) {
-        this.id = id;
+    private boolean isSelected;
+    public Category(String name) {
         this.name = name;
     }
+    public Category() {}
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
     public long getId() {
         return id;
     }
