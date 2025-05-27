@@ -4,13 +4,20 @@ import java.io.Serializable;
 
 public class Category implements Serializable {
 
-    private int id;
+    private long id;
     private String name;
+
     private boolean isSelected;
+    public Category() {}
+
+    public Category(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Category(String name) {
         this.name = name;
     }
-    public Category() {}
 
     public boolean isSelected() {
         return isSelected;
@@ -23,7 +30,7 @@ public class Category implements Serializable {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

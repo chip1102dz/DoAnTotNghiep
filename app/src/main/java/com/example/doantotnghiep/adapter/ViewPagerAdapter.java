@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.doantotnghiep.fragment.AccountFragment;
+import com.example.doantotnghiep.fragment.HistoryFragment;
 import com.example.doantotnghiep.fragment.HomeFragment;
 import com.example.doantotnghiep.fragment.NotificationFragment;
 import com.example.doantotnghiep.fragment.OrderFragment;
@@ -20,7 +21,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position){
             case 1:
-                return new OrderFragment();
+                return new HistoryFragment();
             case 2:
                 return new NotificationFragment();
             case 3:

@@ -73,7 +73,9 @@ public class CartActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityCartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         initUi();
         initData();
         initListener();
@@ -252,33 +254,33 @@ public class CartActivity extends BaseActivity {
         }
     }
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onAddressSelectedEvent(AddressSelectedEvent event) {
-//        if (event.getAddress() != null) {
-//            addressSelected = event.getAddress();
-//            tvAddress.setText(addressSelected.getAddress());
-//        } else {
-//            tvAddress.setText(getString(R.string.label_no_address));
-//        }
-//    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAddressSelectedEvent(AddressSelectedEvent event) {
+        if (event.getAddress() != null) {
+            addressSelected = event.getAddress();
+            tvAddress.setText(addressSelected.getAddress());
+        } else {
+            tvAddress.setText(getString(R.string.label_no_address));
+        }
+    }
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onVoucherSelectedEvent(VoucherSelectedEvent event) {
-//        if (event.getVoucher() != null) {
-//            voucherSelected = event.getVoucher();
-//            tvVoucher.setText(voucherSelected.getTitle());
-//            tvNameVoucher.setText(voucherSelected.getTitle());
-//            String strPriceVoucher = "-" + voucherSelected.getPriceDiscount(priceProduct)
-//                    + Constant.CURRENCY;
-//            tvPriceVoucher.setText(strPriceVoucher);
-//        } else {
-//            tvVoucher.setText(getString(R.string.label_no_voucher));
-//            tvNameVoucher.setText(getString(R.string.label_no_voucher));
-//            String strPriceVoucher = "-0" + Constant.CURRENCY;
-//            tvPriceVoucher.setText(strPriceVoucher);
-//        }
-//        calculateTotalPrice();
-//    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onVoucherSelectedEvent(VoucherSelectedEvent event) {
+        if (event.getVoucher() != null) {
+            voucherSelected = event.getVoucher();
+            tvVoucher.setText(voucherSelected.getTitle());
+            tvNameVoucher.setText(voucherSelected.getTitle());
+            String strPriceVoucher = "-" + voucherSelected.getPriceDiscount(priceProduct)
+                    + Constant.CURRENCY;
+            tvPriceVoucher.setText(strPriceVoucher);
+        } else {
+            tvVoucher.setText(getString(R.string.label_no_voucher));
+            tvNameVoucher.setText(getString(R.string.label_no_voucher));
+            String strPriceVoucher = "-0" + Constant.CURRENCY;
+            tvPriceVoucher.setText(strPriceVoucher);
+        }
+        calculateTotalPrice();
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onOrderSuccessEvent(OrderSuccessEvent event) {
