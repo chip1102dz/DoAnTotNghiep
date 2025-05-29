@@ -221,6 +221,28 @@
     <string name="hint_search_product">Tìm kiếm sản phẩm...</string>
     <string name="no_search_result">Không tìm thấy sản phẩm nào</string>
     <string name="msg_no_search_results">Không tìm thấy kết quả cho "%s"</string>
+
+    <string name="store_location_title">Vị trí cửa hàng</string>
+    <string name="admin_store_location_title">Quản lý vị trí cửa hàng</string>
+    <string name="manage_store_location">Quản lý vị trí cửa hàng</string>
+    <string name="store_info_title">Thông tin cửa hàng</string>
+    <string name="store_location_instruction">Nhấn vào bản đồ để chọn vị trí cửa hàng hoặc nhập địa chỉ để tìm kiếm</string>
+    <string name="label_address_store">Địa chỉ cửa hàng</string>
+    <string name="label_phone_store">Số điện thoại</string>
+    <string name="label_latitude">Vĩ độ</string>
+    <string name="label_longitude">Kinh độ</string>
+    <string name="hint_store_address">Nhập địa chỉ cửa hàng (tự động gợi ý)</string>
+    <string name="hint_store_phone">Nhập số điện thoại</string>
+    <string name="hint_latitude">21.0285</string>
+    <string name="hint_longitude">105.8542</string>
+    <string name="btn_update_location">Cập nhật vị trí</string>
+    <string name="msg_address_require">Vui lòng nhập địa chỉ cửa hàng</string>
+    <string name="msg_phone_require">Vui lòng nhập số điện thoại</string>
+    <string name="msg_location_require">Vui lòng chọn vị trí trên bản đồ</string>
+    <string name="msg_invalid_coordinates">Tọa độ không hợp lệ</string>
+    <string name="msg_update_location_success">Cập nhật vị trí thành công</string>
+    <string name="msg_update_location_error">Lỗi khi cập nhật vị trí</string>
+    <string name="loading">Đang tải...</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -16,6 +16,7 @@ import com.example.doantotnghiep.activity.ChangePasswordActivity;
 import com.example.doantotnghiep.activity.FeedbackActivity;
 import com.example.doantotnghiep.activity.LoginActivity;
 import com.example.doantotnghiep.activity.MainActivity;
+import com.example.doantotnghiep.activity.StoreLocationActivity;
 import com.example.doantotnghiep.databinding.FragmentAccountBinding;
 import com.example.doantotnghiep.prefs.DataStoreManager;
 import com.example.doantotnghiep.utils.GlobalFunction;
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class AccountFragment extends Fragment {
     FragmentAccountBinding binding;
+    private LinearLayout layoutStoreLocation;
     private LinearLayout layoutFeedback;
     private LinearLayout layoutChangePassword;
     private LinearLayout layoutSignOut;
@@ -51,12 +53,15 @@ public class AccountFragment extends Fragment {
     private void initUi() {
         TextView tvUsername = binding.tvUsername;
         tvUsername.setText(DataStoreManager.getUser().getEmail());
+        layoutStoreLocation = binding.layoutStoreLocation;
         layoutFeedback = binding.layoutFeedback;
         layoutChangePassword = binding.layoutChangePassword;
         layoutSignOut = binding.layoutSignOut;
     }
 
     private void initListener() {
+        layoutStoreLocation.setOnClickListener(view ->
+                GlobalFunction.startActivity(getActivity(), StoreLocationActivity.class));
         layoutFeedback.setOnClickListener(view ->
                 GlobalFunction.startActivity(getActivity(), FeedbackActivity.class));
         layoutChangePassword.setOnClickListener(view ->

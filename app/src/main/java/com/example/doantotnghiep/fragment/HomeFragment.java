@@ -39,6 +39,7 @@ import com.example.doantotnghiep.adapter.SearchFeatureAdapter;
 import com.example.doantotnghiep.databinding.FragmentHomeBinding;
 import com.example.doantotnghiep.listener.IClickProductListener;
 
+import com.example.doantotnghiep.listener.IClickSearchListener;
 import com.example.doantotnghiep.model.Category;
 import com.example.doantotnghiep.model.CategoryHome;
 import com.example.doantotnghiep.model.Filter;
@@ -148,18 +149,18 @@ public class HomeFragment extends Fragment {
     }
 
     public List<CategoryHome> getListCategoryHome() {
-        List<CategoryHome> listCategoryHome = new ArrayList<>();
-        listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
-        listCategoryHome.add(new CategoryHome(R.drawable.chicken, "Gà rán"));
-        listCategoryHome.add(new CategoryHome(R.drawable.rice, "Cơm"));
-        listCategoryHome.add(new CategoryHome(R.drawable.pho, "Phở"));
-        listCategoryHome.add(new CategoryHome(R.drawable.pizza, "Pizza"));
-        listCategoryHome.add(new CategoryHome(R.drawable.orange_juice, "Nước ép"));
-        listCategoryHome.add(new CategoryHome(R.drawable.bubble_tea, "Trà sữa"));
-        listCategoryHome.add(new CategoryHome(R.drawable.cupcake, "Kem"));
-        listCategoryHome.add(new CategoryHome(R.drawable.fruit, "Trà"));
-        listCategoryHome.add(new CategoryHome(R.drawable.egg_rolls, "Món cuốn"));
-        return listCategoryHome;
+        List<CategoryHome> listCategoryHomes = new ArrayList<>();
+        listCategoryHomes.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.chicken, "Gà rán"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.rice, "Cơm"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.pho, "Phở"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.pizza, "Pizza"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.orange_juice, "Nước ép"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.bubble_tea, "Trà sữa"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.cupcake, "Kem"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.fruit, "Trà"));
+        listCategoryHomes.add(new CategoryHome(R.drawable.egg_rolls, "Món cuốn"));
+        return listCategoryHomes;
 
     }
 
@@ -345,7 +346,20 @@ public class HomeFragment extends Fragment {
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         rcvSearchHomeFeature = binding.rcvHomeSearchFeature;
         rcvSearchHomeFeature.setLayoutManager(layoutManager2);
-        SearchFeatureAdapter searchFeatureAdapter = new SearchFeatureAdapter(listSearchFeature,getContext());
+
+        // Thêm listener để xử lý click
+        SearchFeatureAdapter searchFeatureAdapter = new SearchFeatureAdapter(listSearchFeature, getContext(), new IClickSearchListener() {
+            @Override
+            public void onClickSearchItem(Category category) {
+                // Chuyển sang SearchActivity với keyword
+                Bundle bundle = new Bundle();
+                // Nếu là "Tất cả" thì không truyền keyword
+                if (!"Tất cả".equals(category.getName())) {
+                    bundle.putString(Constant.SEARCH_KEYWORD, category.getName());
+                }
+                GlobalFunction.startActivity(getActivity(), SearchActivity.class, bundle);
+            }
+        });
         rcvSearchHomeFeature.setAdapter(searchFeatureAdapter);
     }
 

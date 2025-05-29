@@ -44,6 +44,19 @@
         android:textSize="@dimen/text_size_small" />
 
     <TextView
+        android:id="@+id/tv_manage_store_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/define_dimen_14"
+        android:paddingBottom="@dimen/define_dimen_14"
+        android:text="@string/manage_store_location"
+        android:drawableTint="@color/textColorPrimary"
+        android:textColor="@color/textColorPrimary"
+        android:drawableStart="@drawable/ic_location"
+        android:drawablePadding="@dimen/define_dimen_10"
+        android:textSize="@dimen/text_size_small" />
+
+    <TextView
         android:id="@+id/tv_manage_revenue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

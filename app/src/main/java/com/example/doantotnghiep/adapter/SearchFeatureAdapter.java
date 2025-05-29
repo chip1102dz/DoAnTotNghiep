@@ -11,22 +11,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.databinding.ItemFilterBinding;
-import com.example.doantotnghiep.fragment.HomeFragment;
-import com.example.doantotnghiep.listener.IClickFilterListener;
 import com.example.doantotnghiep.listener.IClickSearchListener;
 import com.example.doantotnghiep.model.Category;
-import com.example.doantotnghiep.model.Filter;
 
 import java.util.List;
 
 public class SearchFeatureAdapter extends RecyclerView.Adapter<SearchFeatureAdapter.SearchFeatureViewHolder>{
     private Context context;
     private final List<Category> mData;
+    private final IClickSearchListener iClickSearchListener;
 
-
-    public SearchFeatureAdapter(List<Category> mData, Context context) {
+    public SearchFeatureAdapter(List<Category> mData, Context context, IClickSearchListener listener) {
         this.mData = mData;
         this.context = context;
+        this.iClickSearchListener = listener;
     }
 
     @NonNull
@@ -51,7 +49,15 @@ public class SearchFeatureAdapter extends RecyclerView.Adapter<SearchFeatureAdap
             holder.binding.tvTitleFilter.setTextColor(color);
         }
 
-
+        // Thêm listener cho click event
+        holder.binding.layoutFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (iClickSearchListener != null) {
+                    iClickSearchListener.onClickSearchItem(category);
+                }
+            }
+        });
     }
 
     @Override
@@ -61,6 +67,7 @@ public class SearchFeatureAdapter extends RecyclerView.Adapter<SearchFeatureAdap
         }
         return 0;
     }
+
     public void release() {
         if (context != null) context = null;
     }

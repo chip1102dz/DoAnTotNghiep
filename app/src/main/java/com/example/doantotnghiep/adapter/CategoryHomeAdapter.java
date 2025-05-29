@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.doantotnghiep.databinding.ItemCategoryHomeBinding;
-import com.example.doantotnghiep.databinding.ItemOrderBinding;
 import com.example.doantotnghiep.model.CategoryHome;
 
 import java.util.List;

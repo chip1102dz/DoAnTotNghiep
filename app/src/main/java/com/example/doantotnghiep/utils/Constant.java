@@ -15,6 +15,8 @@ public class Constant {
     public static final String RATING_REVIEW_OBJECT = "rating_review_object";
     public static final String AMOUNT_VALUE = "amount_value";
 
+    public static final String SEARCH_KEYWORD = "search_keyword";
+
     public static final int TYPE_GOPAY = 1;
 //    public static final int TYPE_CREDIT = 2;
 //    public static final int TYPE_BANK = 3;

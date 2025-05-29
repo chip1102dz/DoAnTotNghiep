@@ -1,6 +1,7 @@
 package com.example.doantotnghiep.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,9 +55,22 @@ public class SearchActivity extends BaseActivity {
         initToolbar();
         initUi();
         initListener();
+
+        checkAndSetKeywordFromIntent();
+
         loadAllProductsFromFirebase();
+    }
 
-
+    private void checkAndSetKeywordFromIntent() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            String keyword = bundle.getString(Constant.SEARCH_KEYWORD, "");
+            if (!StringUtil.isEmpty(keyword)) {
+                edtSearch.setText(keyword);
+                // Tự động search khi có keyword
+                searchProduct();
+            }
+        }
     }
 
     private void initToolbar() {
@@ -116,7 +130,6 @@ public class SearchActivity extends BaseActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void loadAllProductsFromFirebase() {
-
         showProgressDialog(true);
         mValueEventListener = new ValueEventListener() {
             @Override
@@ -129,7 +142,14 @@ public class SearchActivity extends BaseActivity {
                         mListProduct.add(product);
                     }
                 }
-                displayRandomProducts();
+
+                // Nếu có từ khóa từ Intent, tự động tìm kiếm
+                String currentKeyword = edtSearch.getText().toString().trim();
+                if (!StringUtil.isEmpty(currentKeyword)) {
+                    searchProduct();
+                } else {
+                    displayRandomProducts();
+                }
             }
 
             @Override
@@ -160,7 +180,6 @@ public class SearchActivity extends BaseActivity {
     }
 
     private void searchProduct() {
-
         String keyword = edtSearch.getText().toString().trim();
         if (StringUtil.isEmpty(keyword)) {
             displayRandomProducts();

@@ -14,6 +14,7 @@ import com.example.doantotnghiep.activity.LoginActivity;
 import com.example.doantotnghiep.activity.admin.AdminFeedbackActivity;
 import com.example.doantotnghiep.activity.admin.AdminRevenueActivity;
 import com.example.doantotnghiep.activity.admin.AdminRoleActivity;
+import com.example.doantotnghiep.activity.admin.AdminStoreLocationActivity;
 import com.example.doantotnghiep.activity.admin.AdminTopProductActivity;
 import com.example.doantotnghiep.activity.admin.AdminVoucherActivity;
 import com.example.doantotnghiep.databinding.FragmentAdminSettingsBinding;
@@ -47,20 +48,20 @@ public class AdminSettingsFragment extends Fragment {
         }
 
         tvManageRole.setOnClickListener(view -> onClickManageRole());
-        binding.tvManageFeedback.setOnClickListener(view -> onClickManageRevenue());
+        binding.tvManageStoreLocation.setOnClickListener(view -> onClickManageStoreLocation());
+        binding.tvManageRevenue.setOnClickListener(view -> onClickManageRevenue());
         binding.tvManageTopProduct.setOnClickListener(view -> onClickManageTopProduct());
         binding.tvManageVoucher.setOnClickListener(view -> onClickManageVoucher());
-        binding.tvManageFeedback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AdminSettingsFragment.this.onClickManageFeedback();
-            }
-        });
+        binding.tvManageFeedback.setOnClickListener(view -> onClickManageFeedback());
         binding.tvSignOut.setOnClickListener(view -> onClickSignOut());
     }
 
     private void onClickManageRole() {
         GlobalFunction.startActivity(getActivity(), AdminRoleActivity.class);
+    }
+
+    private void onClickManageStoreLocation() {
+        GlobalFunction.startActivity(getActivity(), AdminStoreLocationActivity.class);
     }
 
     private void onClickManageRevenue() {

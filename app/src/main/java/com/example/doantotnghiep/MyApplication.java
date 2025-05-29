@@ -66,4 +66,7 @@ public class MyApplication extends Application {
     public DatabaseReference getOrderDetailDatabaseReference(long orderId) {
         return mFirebaseDatabase.getReference("order/" + orderId);
     }
+    public DatabaseReference getStoreLocationDatabaseReference() {
+        return mFirebaseDatabase.getReference("store_location");
+    }
 }
