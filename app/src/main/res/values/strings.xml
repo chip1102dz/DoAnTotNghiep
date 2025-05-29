@@ -147,7 +147,6 @@
     <string name="send_feedback">Gửi phản hồi</string>
 
     <string name="hint_search_category">Tên thể loại…</string>
-    <string name="hint_search_product">Tên sản phẩm…</string>
 
     <string name="label_category">Thể loại</string>
     <string name="label_category_require">Thể loại (*)</string>
@@ -219,6 +218,9 @@
     <string name="msg_email_products">Danh sách sản phẩm đặt mua:</string>
     <string name="msg_email_total">Tổng tiền:</string>
     <string name="msg_email_payment_method">Phương thức thanh toán:</string>
+    <string name="hint_search_product">Tìm kiếm sản phẩm...</string>
+    <string name="no_search_result">Không tìm thấy sản phẩm nào</string>
+    <string name="msg_no_search_results">Không tìm thấy kết quả cho "%s"</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

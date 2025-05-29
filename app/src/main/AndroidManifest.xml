@@ -26,7 +26,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
-
+        <activity
+            android:name=".activity.SearchActivity"
+            android:exported="false" />
         <activity
             android:name=".activity.FeedbackActivity"
             android:exported="false" />
@@ -72,7 +74,6 @@
         <activity
             android:name=".activity.ProductDetailActivity"
             android:exported="false" />
-
         <activity
             android:name=".activity.admin.AdminMainActivity"
             android:exported="false" />

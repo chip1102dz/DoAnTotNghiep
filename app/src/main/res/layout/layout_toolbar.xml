@@ -12,14 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="#FFC107">
 
         <ImageView
             android:id="@+id/img_toolbar_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/define_dimen_10"
-            android:src="@drawable/ic_back_toolbar"
+            android:src="@drawable/ic_arrow_back_black_24dp"
             tools:ignore="ContentDescription" />
 
         <TextView
@@ -28,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/define_dimen_5"
             android:text="@string/app_name"
-            android:textColor="@color/textColorHeading"
+            android:textColor="@color/white"
             android:textSize="@dimen/text_size_normal" />
     </LinearLayout>
 

@@ -1,7 +1,5 @@
 package com.example.doantotnghiep.fragment;
 
-import static android.view.View.GONE;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 

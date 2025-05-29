@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -27,9 +28,10 @@ import org.greenrobot.eventbus.EventBus;
 import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.activity.ProductDetailActivity;
+import com.example.doantotnghiep.activity.SearchActivity;
 import com.example.doantotnghiep.adapter.BannerAdapter;
 import com.example.doantotnghiep.adapter.CategoryHomeAdapter;
-import com.example.doantotnghiep.adapter.CategoryPagerAdapter;
+import com.example.doantotnghiep.adapter.CustomTabPagerAdapter;
 import com.example.doantotnghiep.adapter.FilterAdapter;
 import com.example.doantotnghiep.adapter.HomeProductFeaturedAdapter;
 import com.example.doantotnghiep.adapter.HomeProductRatingAdapter;
@@ -66,21 +68,20 @@ public class HomeFragment extends Fragment {
     private CircleIndicator3 mCircleIndicatorProductFeatured;
     private List<Filter> listFilter;
     private List<Category> listCategory;
+
+    private Button btnSearch;
     private TabLayout tabCategory;
     private ViewPager2 viewPagerCategory;
     private List<Product> listProductFeatured, listProductRating, listProductBanner;
-    private List<Product> listProductDisplay, listProductRatingDisplay;
+    private List<Product> listProductDisplay;
     private FilterAdapter filterAdapter;
     private Filter currentFilter;
     private long categoryId;
     ProgressBar loadingProductFeature, loadingProductRating;
     private HomeProductFeaturedAdapter productFeaturedAdapter;
-    private HomeProductRatingAdapter productRatingAdapter;
     private ValueEventListener mCategoryValueEventListener;
     private ValueEventListener mValueProductFeaturedListener;
-
     private ValueEventListener mValueProductRatingListener;
-
 
     private final Handler mHandlerBanner = new Handler();
     private final Runnable mRunnableBanner = new Runnable() {
@@ -113,18 +114,25 @@ public class HomeFragment extends Fragment {
 
         initUi();
 
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GlobalFunction.startActivity(HomeFragment.this.getActivity(), SearchActivity.class);
+            }
+        });
         displayListProductFeatured();
         getListProductBanner();
         getListFilter();
         getListProductFeatured();
         setListSearchFeatureDisplay();
         getListProductRating();
-        getListCategory();
+        displayTabsCategory();
         setLoadMoreAction();
         return binding.getRoot();
     }
 
     private void initUi() {
+        btnSearch = binding.homeSearch;
         mViewPagerProductFeatured = binding.viewPagerProductFeatured;
         mCircleIndicatorProductFeatured = binding.indicatorProductFeatured;
         rcvFilter = binding.rcvFilter;
@@ -146,11 +154,11 @@ public class HomeFragment extends Fragment {
         listCategoryHome.add(new CategoryHome(R.drawable.rice, "Cơm"));
         listCategoryHome.add(new CategoryHome(R.drawable.pho, "Phở"));
         listCategoryHome.add(new CategoryHome(R.drawable.pizza, "Pizza"));
-        listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
-        listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
-        listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
-        listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
-        listCategoryHome.add(new CategoryHome(R.drawable.danh_muc, "Danh mục"));
+        listCategoryHome.add(new CategoryHome(R.drawable.orange_juice, "Nước ép"));
+        listCategoryHome.add(new CategoryHome(R.drawable.bubble_tea, "Trà sữa"));
+        listCategoryHome.add(new CategoryHome(R.drawable.cupcake, "Kem"));
+        listCategoryHome.add(new CategoryHome(R.drawable.fruit, "Trà"));
+        listCategoryHome.add(new CategoryHome(R.drawable.egg_rolls, "Món cuốn"));
         return listCategoryHome;
 
     }
@@ -222,7 +230,7 @@ public class HomeFragment extends Fragment {
         rcvFilter.setLayoutManager(linearLayoutManager);
         currentFilter = listFilter.get(0);
         currentFilter.setSelected(true);
-        filterAdapter = new FilterAdapter(getActivity(), listFilter, this::handleClickFilter);
+        filterAdapter = new FilterAdapter(getContext(), listFilter, this::handleClickFilter);
         rcvFilter.setAdapter(filterAdapter);
     }
 
@@ -328,11 +336,11 @@ public class HomeFragment extends Fragment {
     private void setListSearchFeatureDisplay(){
         List<Category> listSearchFeature = new ArrayList<>();
         listSearchFeature.add(new Category("Tất cả"));
-        listSearchFeature.add(new Category("Điện thoại - Máy tính"));
-        listSearchFeature.add(new Category("Thời trang"));
-        listSearchFeature.add(new Category("Sách"));
-        listSearchFeature.add(new Category("Làm đẹp - Sức khỏe"));
-        listSearchFeature.add(new Category("Đồ gia dụng"));
+        listSearchFeature.add(new Category("Bim Bim"));
+        listSearchFeature.add(new Category("Coca"));
+        listSearchFeature.add(new Category("Tăm cay"));
+        listSearchFeature.add(new Category("Kem"));
+        listSearchFeature.add(new Category("Bán mỳ"));
 
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         rcvSearchHomeFeature = binding.rcvHomeSearchFeature;
@@ -371,11 +379,11 @@ public class HomeFragment extends Fragment {
     }
     private void displayListProductRating() {
         if (getActivity() == null) return;
-        listProductRatingDisplay = new ArrayList<>();
+        List<Product> listProductRatingDisplay = new ArrayList<>();
         listProductRatingDisplay.addAll(listProductRating);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rcvProductRating.setLayoutManager(linearLayoutManager);
-        productRatingAdapter = new HomeProductRatingAdapter(listProductRatingDisplay, new IClickProductListener() {
+        HomeProductRatingAdapter productRatingAdapter = new HomeProductRatingAdapter(listProductRatingDisplay, new IClickProductListener() {
             @Override
             public void onClickProductItem(Product product) {
                 Bundle bundle = new Bundle();
@@ -392,43 +400,28 @@ public class HomeFragment extends Fragment {
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    private void getListCategory() {
-        if (getActivity() == null) return;
-        mCategoryValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (listCategory != null) {
-                    listCategory.clear();
-                } else {
-                    listCategory = new ArrayList<>();
-                }
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Category category = dataSnapshot.getValue(Category.class);
-                    if (category != null) {
-                        listCategory.add(category);
-                    }
-                }
-                displayTabsCategory();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        MyApplication.get(getActivity()).getCategoryDatabaseReference()
-                .addValueEventListener(mCategoryValueEventListener);
-    }
     private void displayTabsCategory() {
-        if (getActivity() == null || listCategory == null || listCategory.isEmpty()) return;
-        viewPagerCategory.setOffscreenPageLimit(listCategory.size());
-        CategoryPagerAdapter adapter = new CategoryPagerAdapter(getActivity(), listCategory);
-        viewPagerCategory.setAdapter(adapter);
+        if (getActivity() == null) return;
+
+        viewPagerCategory.setOffscreenPageLimit(3);
+        CustomTabPagerAdapter customTabPagerAdapter = new CustomTabPagerAdapter(getActivity());
+        viewPagerCategory.setAdapter(customTabPagerAdapter);
+
         new TabLayoutMediator(tabCategory, viewPagerCategory,
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        tab.setText(listCategory.get(position).getName().toLowerCase());
+                        switch (position) {
+                            case 0:
+                                tab.setText("Bán chạy");
+                                break;
+                            case 1:
+                                tab.setText("Mới nhất");
+                                break;
+                            case 2:
+                                tab.setText("Giảm giá");
+                                break;
+                        }
                     }
                 })
                 .attach();
