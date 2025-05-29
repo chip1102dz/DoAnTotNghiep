@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".activity.StoreLocationActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/define_dimen_16"
+        android:background="@color/white"
+        android:elevation="@dimen/define_dimen_8">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/store_info_title"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/text_size_normal"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/define_dimen_10" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/define_dimen_8">
+
+            <ImageView
+                android:layout_width="@dimen/define_dimen_20"
+                android:layout_height="@dimen/define_dimen_20"
+                android:src="@drawable/ic_location"
+                android:layout_marginEnd="@dimen/define_dimen_10"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tv_store_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/loading"
+                android:textColor="@color/textColorHeading"
+                android:textSize="@dimen/text_size_small" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="@dimen/define_dimen_20"
+                android:layout_height="@dimen/define_dimen_20"
+                android:src="@drawable/ic_phone"
+                android:layout_marginEnd="@dimen/define_dimen_10"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tv_store_phone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/loading"
+                android:textColor="@color/textColorHeading"
+                android:textSize="@dimen/text_size_small" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

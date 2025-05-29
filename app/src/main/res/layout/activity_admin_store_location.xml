@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".activity.admin.AdminStoreLocationActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/define_dimen_16">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/store_location_instruction"
+                    android:textColor="@color/textColorSecondary"
+                    android:textSize="@dimen/text_size_small"
+                    android:layout_marginBottom="@dimen/define_dimen_16" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_address_store"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/define_dimen_5" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/edt_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_white_corner_16_border_gray"
+                    android:hint="@string/hint_store_address"
+                    android:inputType="textMultiLine"
+                    android:maxLines="3"
+                    android:padding="@dimen/define_dimen_12"
+                    android:textColor="@color/textColorHeading"
+                    android:textColorHint="@color/textColorAccent"
+                    android:textSize="@dimen/text_size_small"
+                    android:layout_marginBottom="@dimen/define_dimen_16"
+                    android:dropDownWidth="match_parent"
+                    android:dropDownHeight="wrap_content"
+                    android:completionThreshold="3"
+                    tools:ignore="Autofill" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_phone_store"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/define_dimen_5" />
+
+                <EditText
+                    android:id="@+id/edt_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_white_corner_16_border_gray"
+                    android:hint="@string/hint_store_phone"
+                    android:inputType="phone"
+                    android:padding="@dimen/define_dimen_12"
+                    android:textColor="@color/textColorHeading"
+                    android:textColorHint="@color/textColorAccent"
+                    android:textSize="@dimen/text_size_small"
+                    android:layout_marginBottom="@dimen/define_dimen_16"
+                    tools:ignore="Autofill" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="@dimen/define_dimen_16">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="@dimen/define_dimen_8">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_latitude"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/text_size_small"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="@dimen/define_dimen_5" />
+
+                        <EditText
+                            android:id="@+id/edt_latitude"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_white_corner_16_border_gray"
+                            android:hint="@string/hint_latitude"
+                            android:inputType="numberDecimal|numberSigned"
+                            android:padding="@dimen/define_dimen_12"
+                            android:textColor="@color/textColorHeading"
+                            android:textColorHint="@color/textColorAccent"
+                            android:textSize="@dimen/text_size_small"
+                            tools:ignore="Autofill" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="@dimen/define_dimen_8">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_longitude"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/text_size_small"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="@dimen/define_dimen_5" />
+
+                        <EditText
+                            android:id="@+id/edt_longitude"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_white_corner_16_border_gray"
+                            android:hint="@string/hint_longitude"
+                            android:inputType="numberDecimal|numberSigned"
+                            android:padding="@dimen/define_dimen_12"
+                            android:textColor="@color/textColorHeading"
+                            android:textColorHint="@color/textColorAccent"
+                            android:textSize="@dimen/text_size_small"
+                            tools:ignore="Autofill" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_update_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_button_enable_corner_10"
+                    android:text="@string/btn_update_location"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="bold"
+                    android:layout_marginTop="@dimen/define_dimen_10" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
