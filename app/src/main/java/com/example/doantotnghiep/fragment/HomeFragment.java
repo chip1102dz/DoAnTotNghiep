@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
+import com.example.doantotnghiep.activity.ChatBotAiActivity;
 import com.example.doantotnghiep.activity.ProductDetailActivity;
 import com.example.doantotnghiep.activity.SearchActivity;
 import com.example.doantotnghiep.adapter.BannerAdapter;
@@ -47,6 +48,7 @@ import com.example.doantotnghiep.model.Product;
 
 import com.example.doantotnghiep.utils.Constant;
 import com.example.doantotnghiep.utils.GlobalFunction;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
@@ -71,6 +73,7 @@ public class HomeFragment extends Fragment {
     private List<Category> listCategory;
 
     private Button btnSearch;
+    private FloatingActionButton fabChatBot; // Thêm FloatingActionButton
     private TabLayout tabCategory;
     private ViewPager2 viewPagerCategory;
     private List<Product> listProductFeatured, listProductRating, listProductBanner;
@@ -121,6 +124,15 @@ public class HomeFragment extends Fragment {
                 GlobalFunction.startActivity(HomeFragment.this.getActivity(), SearchActivity.class);
             }
         });
+
+        // Thêm listener cho FloatingActionButton
+        fabChatBot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GlobalFunction.startActivity(HomeFragment.this.getActivity(), ChatBotAiActivity.class);
+            }
+        });
+
         displayListProductFeatured();
         getListProductBanner();
         getListFilter();
@@ -134,6 +146,7 @@ public class HomeFragment extends Fragment {
 
     private void initUi() {
         btnSearch = binding.homeSearch;
+        fabChatBot = binding.fabChatBot; // Khởi tạo FloatingActionButton
         mViewPagerProductFeatured = binding.viewPagerProductFeatured;
         mCircleIndicatorProductFeatured = binding.indicatorProductFeatured;
         rcvFilter = binding.rcvFilter;

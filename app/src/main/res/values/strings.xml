@@ -243,6 +243,13 @@
     <string name="msg_update_location_success">Cập nhật vị trí thành công</string>
     <string name="msg_update_location_error">Lỗi khi cập nhật vị trí</string>
     <string name="loading">Đang tải...</string>
+
+    <string name="chatbot_title">Trợ lý AI</string>
+    <string name="chatbot_hint_message">Nhập tin nhắn...</string>
+    <string name="chatbot_sample_message">Xin chào! Tôi có thể giúp gì cho bạn?</string>
+    <string name="chatbot_sample_user_message">Tôi muốn đặt pizza</string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

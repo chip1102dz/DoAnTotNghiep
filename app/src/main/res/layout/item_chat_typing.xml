@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="start">
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_bot_avatar"
+        android:background="@drawable/bg_circle_main"
+        android:padding="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="top" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_typing_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_bot_message"
+            android:padding="12dp"
+            android:text="Đang soạn tin..."
+            android:textSize="16sp"
+            android:textColor="@color/textColorAccent"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+</LinearLayout>

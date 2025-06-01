@@ -102,7 +102,12 @@ public class AdminCategoryFragment extends Fragment {
     }
 
     private void initListener() {
-        btnAdd.setOnClickListener(v -> onClickAddCategory());
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AdminCategoryFragment.this.onClickAddCategory();
+            }
+        });
 
         imgSearch.setOnClickListener(view1 -> searchCategory());
 
