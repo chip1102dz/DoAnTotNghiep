@@ -6,51 +6,188 @@
     android:orientation="vertical"
     android:background="@color/white">
 
+    <!-- Toolbar -->
     <include
         android:id="@+id/toolbar"
         layout="@layout/layout_toolbar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rcv_chat"
+    <!-- Data Status Indicator -->
+    <TextView
+        android:id="@+id/tv_data_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:padding="8dp"
+        android:text="Đang tải dữ liệu..."
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:visibility="gone" />
+
+    <!-- Chat Container -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false" />
+        android:background="@color/bg_chat">
 
+        <!-- Chat RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcv_chat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/layout_quick_replies"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
+
+        <!-- Quick Reply Buttons (Optional) -->
+        <LinearLayout
+            android:id="@+id/layout_quick_replies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/layout_input"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:visibility="gone">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_quick_menu"
+                        style="@style/QuickReplyButton"
+                        android:text="Menu" />
+
+                    <Button
+                        android:id="@+id/btn_quick_price"
+                        style="@style/QuickReplyButton"
+                        android:text="Giá cả" />
+
+                    <Button
+                        android:id="@+id/btn_quick_promotion"
+                        style="@style/QuickReplyButton"
+                        android:text="Khuyến mãi" />
+
+                    <Button
+                        android:id="@+id/btn_quick_store"
+                        style="@style/QuickReplyButton"
+                        android:text="Cửa hàng" />
+
+                    <Button
+                        android:id="@+id/btn_quick_help"
+                        style="@style/QuickReplyButton"
+                        android:text="Trợ giúp" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <!-- Input Layout -->
+        <LinearLayout
+            android:id="@+id/layout_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            android:elevation="4dp"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <!-- Message Input -->
+            <EditText
+                android:id="@+id/edt_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_edit_text_chat"
+                android:hint="Nhập tin nhắn..."
+                android:imeOptions="actionSend"
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLines="4"
+                android:minHeight="44dp"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/textColorHeading"
+                android:textColorHint="@color/textColorSecondary" />
+
+            <!-- Send Button -->
+            <ImageView
+                android:id="@+id/img_send"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/bg_send_button"
+                android:contentDescription="Gửi tin nhắn"
+                android:padding="10dp"
+                android:src="@drawable/ic_send_disable"
+                android:scaleType="centerInside" />
+
+        </LinearLayout>
+
+        <!-- Typing Indicator (if needed as overlay) -->
+        <LinearLayout
+            android:id="@+id/layout_typing_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/layout_input"
+            android:background="@color/white"
+            android:padding="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                style="?android:attr/progressBarStyleSmall" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bot đang soạn tin..."
+                android:textSize="14sp"
+                android:textColor="@color/textColorSecondary"
+                android:fontFamily="@font/roboto_italic" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!-- Connection Status Bar -->
     <LinearLayout
+        android:id="@+id/layout_connection_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:padding="4dp"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@color/white"
-        android:elevation="4dp">
-
-        <EditText
-            android:id="@+id/edt_message"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_white_corner_16_border_gray"
-            android:hint="@string/chatbot_hint_message"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="16sp"
-            android:textColor="@color/textColorHeading"
-            android:textColorHint="@color/textColorAccent"
-            android:maxLines="3"
-            android:inputType="textMultiLine|textCapSentences" />
+        android:gravity="center"
+        android:visibility="gone">
 
         <ImageView
-            android:id="@+id/img_send"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_button_enable_corner_10"
-            android:src="@drawable/ic_send_enable"
-            android:scaleType="center"
-            android:padding="12dp"
-            android:enabled="false" />
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_wifi_off"
+            android:tint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Không có kết nối mạng"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
 
     </LinearLayout>
 

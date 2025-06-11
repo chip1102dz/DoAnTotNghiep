@@ -27,8 +27,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     viewBinding{
         enable = true
@@ -36,6 +36,17 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.cloud:google-cloud-dialogflow:4.8.0")
+    implementation ("io.grpc:grpc-okhttp:1.53.0")
+    implementation ("com.google.auth:google-auth-library-oauth2-http:1.18.0")
+    // Để tránh xung đột
+    implementation ("androidx.annotation:annotation:1.6.0")
+
+    // JSON parsing cho Dialogflow
+    implementation ("com.google.code.gson:gson:2.10.1")
+
+    // Async processing
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation ("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("org.greenrobot:eventbus:3.3.1")
