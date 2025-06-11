@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_amount"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/define_dimen_4"
+    android:background="@drawable/bg_unselected_amount"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/define_dimen_16">
+
+    <TextView
+        android:id="@+id/tv_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="50.000đ"
+        android:textColor="@color/textColorHeading"
+        android:textSize="@dimen/define_dimen_20"
+        android:textStyle="bold" />
+
+</LinearLayout>

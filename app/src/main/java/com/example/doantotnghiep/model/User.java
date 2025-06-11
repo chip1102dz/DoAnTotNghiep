@@ -1,6 +1,5 @@
 package com.example.doantotnghiep.model;
 
-
 import com.google.gson.Gson;
 
 public class User {
@@ -9,13 +8,34 @@ public class User {
     private String password;
     private boolean isAdmin;
 
+    // Thêm các thông tin mới
+    private String fullName;
+    private String phoneNumber;
+    private String address;
+    private double balance; // Số dư tài khoản
+    private String profileImageUrl;
+    private String dateOfBirth;
+    private String gender;
+
     public User() {}
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
+        this.balance = 0.0; // Khởi tạo số dư = 0
     }
 
+    // Constructor đầy đủ
+    public User(String email, String password, String fullName, String phoneNumber, String address) {
+        this.email = email;
+        this.password = password;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.balance = 0.0;
+    }
+
+    // Getters và Setters cho các thuộc tính cũ
     public String getEmail() {
         return email;
     }
@@ -38,6 +58,94 @@ public class User {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    // Getters và Setters cho các thuộc tính mới
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    // Phương thức hỗ trợ
+    public String getDisplayName() {
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            return fullName;
+        }
+        return email != null ? email.split("@")[0] : "Người dùng";
+    }
+
+    public String getFormattedBalance() {
+        return String.format("%,.0f", balance) + "đ";
+    }
+
+    public boolean hasCompleteProfile() {
+        return fullName != null && !fullName.trim().isEmpty() &&
+                phoneNumber != null && !phoneNumber.trim().isEmpty() &&
+                address != null && !address.trim().isEmpty();
+    }
+
+    // Phương thức để cập nhật số dư
+    public void addBalance(double amount) {
+        this.balance += amount;
+    }
+
+    public boolean deductBalance(double amount) {
+        if (this.balance >= amount) {
+            this.balance -= amount;
+            return true;
+        }
+        return false;
     }
 
     public String toJSon() {

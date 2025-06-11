@@ -252,4 +252,48 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="user_profile_title">Thông tin cá nhân</string>
+    <string name="full_name_hint">Họ và tên</string>
+    <string name="phone_hint">Số điện thoại</string>
+    <string name="address_hint">Địa chỉ</string>
+    <string name="date_of_birth_hint">Ngày sinh</string>
+    <string name="gender_label">Giới tính</string>
+    <string name="gender_male">Nam</string>
+    <string name="gender_female">Nữ</string>
+    <string name="gender_other">Khác</string>
+    <string name="change_avatar">Thay đổi ảnh đại diện</string>
+    <string name="save">Lưu</string>
+    <string name="cancel">Hủy</string>
+
+    <!-- Account Fragment Strings -->
+    <string name="current_balance">Số dư hiện tại</string>
+    <string name="top_up_balance">Nạp tiền</string>
+    <string name="my_orders">Đơn hàng của tôi</string>
+    <string name="not_updated">Chưa cập nhật</string>
+    <string name="complete_profile_prompt">Hãy hoàn thiện thông tin cá nhân để có trải nghiệm tốt hơt!</string>
+
+    <!-- Top Up Strings -->
+    <string name="top_up_title">Nạp tiền</string>
+    <string name="select_amount">Chọn số tiền nạp</string>
+    <string name="custom_amount">Hoặc nhập số tiền khác</string>
+    <string name="amount_hint">Nhập số tiền (VND)</string>
+    <string name="top_up_info">• Số tiền nạp tối thiểu: 10.000đ\n• Số tiền nạp tối đa: 10.000.000đ\n• Phí giao dịch: Miễn phí</string>
+    <string name="top_up_button">Nạp tiền</string>
+
+    <!-- Validation Messages -->
+    <string name="error_empty_name">Vui lòng nhập họ tên</string>
+    <string name="error_invalid_phone">Số điện thoại không hợp lệ</string>
+    <string name="error_select_amount">Vui lòng chọn hoặc nhập số tiền cần nạp</string>
+    <string name="error_min_amount">Số tiền nạp tối thiểu là 10.000đ</string>
+    <string name="error_max_amount">Số tiền nạp tối đa là 10.000.000đ</string>
+    <string name="error_permission_required">Cần cấp quyền để chọn ảnh</string>
+
+    <!-- Success Messages -->
+    <string name="success_profile_updated">Cập nhật thông tin thành công!</string>
+    <string name="success_top_up">Nạp tiền thành công! Số dư: %s</string>
+
+    <!-- Error Messages -->
+    <string name="error_upload_image">Lỗi khi tải ảnh lên: %s</string>
+    <string name="error_update_profile">Lỗi khi cập nhật: %s</string>
+    <string name="error_update_balance">Lỗi khi cập nhật số dư: %s</string>
 </resources>

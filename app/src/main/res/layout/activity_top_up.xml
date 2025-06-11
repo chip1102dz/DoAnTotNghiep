@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/define_dimen_16">
+
+            <!-- Current Balance Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/define_dimen_24"
+                app:cardCornerRadius="@dimen/define_dimen_12"
+                app:cardElevation="@dimen/define_dimen_4">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_gradient_primary"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/define_dimen_24">
+
+                    <ImageView
+                        android:layout_width="@dimen/define_dimen_40"
+                        android:layout_height="@dimen/define_dimen_40"
+                        android:src="@drawable/ic_wallet"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/define_dimen_8"
+                        android:text="Số dư hiện tại"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/define_dimen_14" />
+
+                    <TextView
+                        android:id="@+id/tv_current_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/define_dimen_4"
+                        android:text="0đ"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_xxlarge"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quick Amount Selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/define_dimen_12"
+                android:text="Chọn số tiền nạp"
+                android:textColor="@color/textColorHeading"
+                android:textSize="@dimen/text_size_large"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcv_top_up_amounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/define_dimen_24" />
+
+            <!-- Custom Amount Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/define_dimen_12"
+                android:text="Hoặc nhập số tiền khác"
+                android:textColor="@color/textColorHeading"
+                android:textSize="@dimen/text_size_large"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/define_dimen_16"
+                android:hint="Nhập số tiền (VND)"
+                app:boxStrokeColor="@color/colorPrimary"
+                app:hintTextColor="@color/colorPrimary"
+                app:startIconTint="@color/colorPrimary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edt_custom_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:textColor="@color/textColorHeading"
+                    android:textSize="@dimen/define_dimen_14" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Info Text -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/define_dimen_24"
+                android:background="@drawable/bg_info_corner_8"
+                android:drawableStart="@drawable/ic_info"
+                android:drawablePadding="@dimen/define_dimen_8"
+                android:drawableTint="@color/blue"
+                android:gravity="center_vertical"
+                android:padding="@dimen/define_dimen_12"
+                android:text="• Số tiền nạp tối thiểu: 10.000đ\n• Số tiền nạp tối đa: 10.000.000đ\n• Phí giao dịch: Miễn phí"
+                android:textColor="@color/blue"
+                android:textSize="@dimen/text_size_small" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Top Up Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="@dimen/define_dimen_8"
+        android:orientation="vertical"
+        android:padding="@dimen/define_dimen_16">
+
+        <Button
+            android:id="@+id/btn_top_up"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/define_dimen_40"
+            android:background="@drawable/bg_button_enable_corner_10"
+            android:text="Nạp tiền"
+            android:textColor="@color/white"
+            android:textSize="@dimen/define_dimen_14"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>
+

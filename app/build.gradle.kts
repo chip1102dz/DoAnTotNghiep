@@ -52,7 +52,8 @@ dependencies {
     implementation ("com.google.cloud:google-cloud-dialogflow:4.8.0")
     implementation ("io.grpc:grpc-okhttp:1.53.0")
     implementation ("com.google.auth:google-auth-library-oauth2-http:1.18.0")
-    // Để tránh xung đột
+    implementation("com.google.firebase:firebase-storage")
+
     implementation ("androidx.annotation:annotation:1.6.0")
 
     // JSON parsing cho Dialogflow
