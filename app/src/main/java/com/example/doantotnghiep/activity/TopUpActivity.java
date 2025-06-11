@@ -1,11 +1,16 @@
 package com.example.doantotnghiep.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +18,7 @@ import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.adapter.TopUpAmountAdapter;
 import com.example.doantotnghiep.databinding.ActivityTopUpBinding;
+import com.example.doantotnghiep.helper.MoMoHelper;
 import com.example.doantotnghiep.model.TopUpAmount;
 import com.example.doantotnghiep.model.User;
 import com.example.doantotnghiep.prefs.DataStoreManager;
@@ -28,15 +34,30 @@ import java.util.Map;
 public class TopUpActivity extends BaseActivity {
 
     private ActivityTopUpBinding binding;
+
+    // UI Components
     private TextView tvCurrentBalance;
     private EditText edtCustomAmount;
     private RecyclerView rcvTopUpAmounts;
     private Button btnTopUp;
 
+    // Data
     private TopUpAmountAdapter topUpAmountAdapter;
     private List<TopUpAmount> listTopUpAmounts;
     private double selectedAmount = 0;
     private User currentUser;
+
+    // MoMo Payment Variables
+    private String currentOrderId = "";
+    private String currentRequestId = "";
+    private Handler paymentCheckHandler;
+    private Runnable paymentCheckRunnable;
+    private static final int MAX_PAYMENT_CHECK_ATTEMPTS = 60; // 5 minutes
+    private int paymentCheckAttempts = 0;
+    private boolean isPaymentInProgress = false;
+
+    // Activity Result Launcher for QR Payment
+    private ActivityResultLauncher<Intent> qrPaymentLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +70,22 @@ public class TopUpActivity extends BaseActivity {
         initListener();
         loadCurrentBalance();
         setupTopUpAmounts();
+        setupActivityResultLauncher();
+
+        paymentCheckHandler = new Handler();
     }
 
     private void initToolbar() {
         ImageView imgToolbarBack = binding.toolbar.imgToolbarBack;
         TextView tvToolbarTitle = binding.toolbar.tvToolbarTitle;
-        imgToolbarBack.setOnClickListener(view -> finish());
-        tvToolbarTitle.setText("Nạp tiền");
+        imgToolbarBack.setOnClickListener(view -> {
+            if (isPaymentInProgress) {
+                showExitPaymentDialog();
+            } else {
+                finish();
+            }
+        });
+        tvToolbarTitle.setText("Nạp tiền MoMo");
     }
 
     private void initUi() {
@@ -66,14 +96,25 @@ public class TopUpActivity extends BaseActivity {
     }
 
     private void initListener() {
-        btnTopUp.setOnClickListener(v -> processTopUp());
+        btnTopUp.setOnClickListener(v -> {
+            if (!isPaymentInProgress) {
+                processMoMoTopUp();
+            } else {
+                showToastMessage("Đang có giao dịch đang thực hiện...");
+            }
+        });
 
         edtCustomAmount.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                // Clear selection from preset amounts
                 clearPresetSelection();
                 selectedAmount = 0;
             }
+        });
+
+        // Clear focus khi click ngoài EditText
+        binding.getRoot().setOnClickListener(v -> {
+            edtCustomAmount.clearFocus();
+            GlobalFunction.hideSoftKeyboard(this);
         });
     }
 
@@ -81,6 +122,9 @@ public class TopUpActivity extends BaseActivity {
         currentUser = DataStoreManager.getUser();
         if (currentUser != null) {
             tvCurrentBalance.setText(currentUser.getFormattedBalance());
+        } else {
+            tvCurrentBalance.setText("0đ");
+            showToastMessage("Lỗi tải thông tin người dùng");
         }
     }
 
@@ -108,6 +152,25 @@ public class TopUpActivity extends BaseActivity {
         rcvTopUpAmounts.setAdapter(topUpAmountAdapter);
     }
 
+    private void setupActivityResultLauncher() {
+        qrPaymentLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    isPaymentInProgress = false;
+                    updateUIState();
+
+                    if (result.getResultCode() == RESULT_OK) {
+                        // QR Payment thành công
+                        handlePaymentSuccess();
+                    } else {
+                        // QR Payment bị hủy hoặc thất bại
+                        showToastMessage("Thanh toán bị hủy");
+                        resetPaymentState();
+                    }
+                }
+        );
+    }
+
     private void clearPresetSelection() {
         for (TopUpAmount amount : listTopUpAmounts) {
             amount.setSelected(false);
@@ -117,9 +180,10 @@ public class TopUpActivity extends BaseActivity {
         }
     }
 
-    private void processTopUp() {
+    private void processMoMoTopUp() {
         double amountToTopUp = getSelectedAmount();
 
+        // Validation
         if (amountToTopUp <= 0) {
             showToastMessage("Vui lòng chọn hoặc nhập số tiền cần nạp");
             return;
@@ -135,11 +199,214 @@ public class TopUpActivity extends BaseActivity {
             return;
         }
 
-        // Simulate payment process
+        // Hiển thị dialog chọn phương thức thanh toán
+        showPaymentMethodDialog(amountToTopUp);
+    }
+
+    private void showPaymentMethodDialog(double amount) {
+        new AlertDialog.Builder(this)
+                .setTitle("Chọn phương thức thanh toán")
+                .setMessage("Số tiền: " + String.format("%,.0f", amount) + "đ")
+                .setItems(new String[]{
+                        "📱 Mở app MoMo",
+                        "📷 Quét QR Code"
+                }, (dialog, which) -> {
+                    if (which == 0) {
+                        // Mở app MoMo
+                        createMoMoAppPayment(amount);
+                    } else {
+                        // Hiển thị QR Code
+                        openQRPayment(amount);
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void createMoMoAppPayment(double amount) {
+        isPaymentInProgress = true;
+        updateUIState();
         showProgressDialog(true);
 
-        // In real app, integrate with payment gateway (ZaloPay, VNPay, etc.)
-        simulatePaymentProcess(amountToTopUp);
+        String description = "Nạp " + String.format("%,.0f", amount) + "đ vào tài khoản " + currentUser.getEmail();
+
+        MoMoHelper.createAppPayment(this, amount, description, currentUser.getEmail(),
+                new MoMoHelper.MoMoListener() {
+                    @Override
+                    public void onCreateOrderSuccess(String payUrl, String orderId) {
+                        runOnUiThread(() -> {
+                            showProgressDialog(false);
+                            currentOrderId = orderId;
+                            currentRequestId = "REQ_" + System.currentTimeMillis();
+
+                            // Mở MoMo app để thanh toán
+                            MoMoHelper.openMoMoApp(TopUpActivity.this, payUrl);
+
+                            // Bắt đầu kiểm tra trạng thái thanh toán
+                            startPaymentStatusCheck();
+
+                            showToastMessage("Đang chuyển đến MoMo...");
+                        });
+                    }
+
+                    @Override
+                    public void onCreateQRSuccess(String qrCodeData, String orderId) {
+                        // Không sử dụng cho app payment
+                    }
+
+                    @Override
+                    public void onCreateOrderError(String error) {
+                        runOnUiThread(() -> {
+                            showProgressDialog(false);
+                            isPaymentInProgress = false;
+                            updateUIState();
+                            showToastMessage("Lỗi tạo đơn hàng: " + error);
+                        });
+                    }
+
+                    @Override
+                    public void onPaymentResult(boolean success, String orderId, String message) {
+                        runOnUiThread(() -> {
+                            if (success) {
+                                stopPaymentStatusCheck();
+                                handlePaymentSuccess();
+                            } else {
+                                // Tiếp tục check nếu chưa hết thời gian
+                                if (paymentCheckAttempts < MAX_PAYMENT_CHECK_ATTEMPTS) {
+                                    // Sẽ check lại trong runnable
+                                } else {
+                                    stopPaymentStatusCheck();
+                                    isPaymentInProgress = false;
+                                    updateUIState();
+                                    showToastMessage("Thanh toán không thành công: " + message);
+                                    resetPaymentState();
+                                }
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void openQRPayment(double amount) {
+        Intent intent = new Intent(this, QRPaymentActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putDouble("amount", amount);
+        bundle.putString("description", "Nạp " + String.format("%,.0f", amount) + "đ vào tài khoản");
+        intent.putExtras(bundle);
+
+        isPaymentInProgress = true;
+        updateUIState();
+        qrPaymentLauncher.launch(intent);
+    }
+
+    private void startPaymentStatusCheck() {
+        paymentCheckAttempts = 0;
+        paymentCheckRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (paymentCheckAttempts < MAX_PAYMENT_CHECK_ATTEMPTS && isPaymentInProgress) {
+                    checkPaymentStatus();
+                    paymentCheckAttempts++;
+                    paymentCheckHandler.postDelayed(this, 5000); // Check every 5 seconds
+                } else {
+                    runOnUiThread(() -> {
+                        isPaymentInProgress = false;
+                        updateUIState();
+                        if (paymentCheckAttempts >= MAX_PAYMENT_CHECK_ATTEMPTS) {
+                            showToastMessage("Hết thời gian kiểm tra thanh toán. Vui lòng kiểm tra lại sau.");
+                        }
+                        resetPaymentState();
+                    });
+                }
+            }
+        };
+
+        paymentCheckHandler.post(paymentCheckRunnable);
+        showToastMessage("Đang kiểm tra trạng thái thanh toán...");
+    }
+
+    private void stopPaymentStatusCheck() {
+        if (paymentCheckHandler != null && paymentCheckRunnable != null) {
+            paymentCheckHandler.removeCallbacks(paymentCheckRunnable);
+        }
+    }
+
+    private void checkPaymentStatus() {
+        if (!StringUtil.isEmpty(currentOrderId) && !StringUtil.isEmpty(currentRequestId)) {
+            MoMoHelper.queryPaymentStatus(currentOrderId, currentRequestId,
+                    new MoMoHelper.MoMoListener() {
+                        @Override
+                        public void onCreateOrderSuccess(String payUrl, String orderId) {
+                            // Not used in query
+                        }
+
+                        @Override
+                        public void onCreateQRSuccess(String qrCodeData, String orderId) {
+                            // Not used in query
+                        }
+
+                        @Override
+                        public void onCreateOrderError(String error) {
+                            // Not used in query
+                        }
+
+                        @Override
+                        public void onPaymentResult(boolean success, String orderId, String message) {
+                            runOnUiThread(() -> {
+                                if (success) {
+                                    stopPaymentStatusCheck();
+                                    handlePaymentSuccess();
+                                }
+                                // If not success, continue checking
+                            });
+                        }
+                    });
+        }
+    }
+
+    private void handlePaymentSuccess() {
+        double amount = getSelectedAmount();
+
+        // Cập nhật số dư người dùng
+        currentUser.addBalance(amount);
+        DataStoreManager.setUser(currentUser);
+
+        // Cập nhật Firebase
+        updateBalanceInFirebase(currentUser.getBalance(), amount);
+
+        // Hiển thị thông báo thành công
+        showToastMessage("✅ Nạp tiền thành công!\nSố dư: " + currentUser.getFormattedBalance());
+
+        // Cập nhật UI
+        tvCurrentBalance.setText(currentUser.getFormattedBalance());
+
+        // Reset state
+        resetPaymentState();
+        isPaymentInProgress = false;
+        updateUIState();
+    }
+
+    private void resetPaymentState() {
+        // Clear selections
+        clearPresetSelection();
+        edtCustomAmount.setText("");
+        selectedAmount = 0;
+        currentOrderId = "";
+        currentRequestId = "";
+        paymentCheckAttempts = 0;
+    }
+
+    private void updateUIState() {
+        // Disable/Enable UI based on payment progress
+        btnTopUp.setEnabled(!isPaymentInProgress);
+        btnTopUp.setText(isPaymentInProgress ? "Đang xử lý..." : "Nạp tiền");
+        edtCustomAmount.setEnabled(!isPaymentInProgress);
+        rcvTopUpAmounts.setEnabled(!isPaymentInProgress);
+
+        // Update adapter state
+        if (topUpAmountAdapter != null) {
+            topUpAmountAdapter.setEnabled(!isPaymentInProgress);
+        }
     }
 
     private double getSelectedAmount() {
@@ -159,51 +426,112 @@ public class TopUpActivity extends BaseActivity {
         return 0;
     }
 
-    private void simulatePaymentProcess(double amount) {
-        // Simulate network delay
-        binding.getRoot().postDelayed(() -> {
-            showProgressDialog(false);
+    private void updateBalanceInFirebase(double newBalance, double topUpAmount) {
+        if (currentUser == null) return;
 
-            // Update user balance
-            currentUser.addBalance(amount);
-            DataStoreManager.setUser(currentUser);
-
-            // Update Firebase
-            updateBalanceInFirebase(currentUser.getBalance());
-
-            // Show success message
-            showToastMessage("Nạp tiền thành công! Số dư: " + currentUser.getFormattedBalance());
-
-            // Update UI
-            tvCurrentBalance.setText(currentUser.getFormattedBalance());
-
-            // Clear selections
-            clearPresetSelection();
-            edtCustomAmount.setText("");
-            selectedAmount = 0;
-
-        }, 2000); // Simulate 2 second processing time
-    }
-
-    private void updateBalanceInFirebase(double newBalance) {
         String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
         DatabaseReference userRef = MyApplication.get(this).getAdminDatabaseReference()
                 .getParent().child("users").child(userKey);
 
         Map<String, Object> balanceUpdate = new HashMap<>();
         balanceUpdate.put("balance", newBalance);
+        balanceUpdate.put("lastTopUpTime", System.currentTimeMillis());
+        balanceUpdate.put("lastTopUpAmount", topUpAmount);
+        balanceUpdate.put("email", currentUser.getEmail());
 
         userRef.updateChildren(balanceUpdate)
+                .addOnSuccessListener(aVoid -> {
+                    // Success - no need to show message
+                })
                 .addOnFailureListener(e -> {
                     showToastMessage("Lỗi khi cập nhật số dư: " + e.getMessage());
                 });
     }
 
+    private void showExitPaymentDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Thoát thanh toán")
+                .setMessage("Bạn có giao dịch đang thực hiện. Bạn có chắc chắn muốn thoát không?")
+                .setPositiveButton("Thoát", (dialog, which) -> {
+                    stopPaymentStatusCheck();
+                    isPaymentInProgress = false;
+                    resetPaymentState();
+                    finish();
+                })
+                .setNegativeButton("Tiếp tục", null)
+                .show();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stopPaymentStatusCheck();
         if (topUpAmountAdapter != null) {
             topUpAmountAdapter.release();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Kiểm tra lại trạng thái thanh toán khi user quay lại app
+        if (!StringUtil.isEmpty(currentOrderId) && isPaymentInProgress) {
+            checkPaymentStatus();
+        }
+
+        // Refresh balance
+        loadCurrentBalance();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Hide keyboard khi pause
+        GlobalFunction.hideSoftKeyboard(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isPaymentInProgress) {
+            showExitPaymentDialog();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    // Handle deep link từ MoMo (nếu có)
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleMoMoCallback(intent);
+    }
+
+    private void handleMoMoCallback(Intent intent) {
+        if (intent != null && intent.getData() != null) {
+            android.net.Uri data = intent.getData();
+            String scheme = data.getScheme();
+            String host = data.getHost();
+
+            if ("doantotnghiep".equals(scheme) && "momo".equals(host)) {
+                String resultCode = data.getQueryParameter("resultCode");
+                String orderId = data.getQueryParameter("orderId");
+
+                if ("0".equals(resultCode)) {
+                    // Thanh toán thành công - force check ngay
+                    if (isPaymentInProgress) {
+                        checkPaymentStatus();
+                    }
+                } else {
+                    // Thanh toán thất bại
+                    if (isPaymentInProgress) {
+                        stopPaymentStatusCheck();
+                        isPaymentInProgress = false;
+                        updateUIState();
+                        resetPaymentState();
+                        showToastMessage("Thanh toán bị hủy hoặc thất bại");
+                    }
+                }
+            }
         }
     }
 }

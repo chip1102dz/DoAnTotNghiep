@@ -56,7 +56,12 @@ dependencies {
 
     implementation ("androidx.annotation:annotation:1.6.0")
 
-    // JSON parsing cho Dialogflow
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("org.json:json:20210307")
+    implementation ("commons-codec:commons-codec:1.15")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0") // QR Generator
+    implementation ("com.google.zxing:core:3.5.1") // ZXing Core
+
     implementation ("com.google.code.gson:gson:2.10.1")
 
     // Async processing

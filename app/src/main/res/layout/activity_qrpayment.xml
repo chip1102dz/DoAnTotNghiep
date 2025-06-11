@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Toolbar -->
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center">
+
+            <!-- Thông tin thanh toán -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Số tiền thanh toán"
+                android:textSize="16sp"
+                android:textColor="@color/textColorSecondary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tv_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100.000 đ"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tv_order_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nạp tiền vào tài khoản"
+                android:textSize="14sp"
+                android:textColor="@color/textColorSecondary"
+                android:layout_marginBottom="30dp" />
+
+            <!-- QR Code container -->
+            <LinearLayout
+                android:layout_width="320dp"
+                android:layout_height="320dp"
+                android:background="@drawable/bg_white_corner_16_border_gray"
+                android:gravity="center"
+                android:layout_marginBottom="20dp">
+
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/img_qr_code"
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:visibility="gone"
+                    android:scaleType="centerInside" />
+
+            </LinearLayout>
+
+            <!-- Status -->
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đang tạo mã QR..."
+                android:textSize="16sp"
+                android:textColor="@color/textColorHeading"
+                android:textAlignment="center"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Hướng dẫn -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📱 Mở app MoMo\n📷 Chọn &quot;Quét QR&quot;\n💰 Xác nhận thanh toán"
+                android:textSize="14sp"
+                android:textColor="@color/textColorSecondary"
+                android:textAlignment="center"
+                android:lineSpacingExtra="4dp"
+                android:background="@drawable/bg_white_corner_10_border_gray"
+                android:padding="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

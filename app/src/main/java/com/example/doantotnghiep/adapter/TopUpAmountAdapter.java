@@ -1,11 +1,9 @@
-// TopUpAmountAdapter
 package com.example.doantotnghiep.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -22,6 +20,7 @@ public class TopUpAmountAdapter extends RecyclerView.Adapter<TopUpAmountAdapter.
     private final List<TopUpAmount> listTopUpAmounts;
     private final IClickTopUpAmountListener iClickTopUpAmountListener;
     private Context context;
+    private boolean isEnabled = true; // Thêm field này
 
     public interface IClickTopUpAmountListener {
         void onClickTopUpAmount(TopUpAmount topUpAmount);
@@ -48,16 +47,13 @@ public class TopUpAmountAdapter extends RecyclerView.Adapter<TopUpAmountAdapter.
 
         holder.binding.tvAmount.setText(topUpAmount.getDisplayText());
 
-        // Update selection state
-        if (topUpAmount.isSelected()) {
-            holder.binding.layoutAmount.setBackgroundResource(R.drawable.bg_selected_amount);
-            holder.binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
-        } else {
-            holder.binding.layoutAmount.setBackgroundResource(R.drawable.bg_unselected_amount);
-            holder.binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.textColorHeading));
-        }
+        // Update selection state và enabled state
+        updateItemState(holder, topUpAmount);
 
+        // Set click listener - chỉ hoạt động khi enabled
         holder.binding.layoutAmount.setOnClickListener(v -> {
+            if (!isEnabled) return; // Không cho click khi disabled
+
             // Clear all other selections
             for (TopUpAmount amount : listTopUpAmounts) {
                 amount.setSelected(false);
@@ -67,13 +63,44 @@ public class TopUpAmountAdapter extends RecyclerView.Adapter<TopUpAmountAdapter.
             topUpAmount.setSelected(true);
             notifyDataSetChanged();
 
-            iClickTopUpAmountListener.onClickTopUpAmount(topUpAmount);
+            if (iClickTopUpAmountListener != null) {
+                iClickTopUpAmountListener.onClickTopUpAmount(topUpAmount);
+            }
         });
+    }
+
+    private void updateItemState(TopUpAmountViewHolder holder, TopUpAmount topUpAmount) {
+        if (!isEnabled) {
+            // Disabled state
+            holder.binding.layoutAmount.setBackgroundResource(R.drawable.bg_unselected_amount);
+            holder.binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.textColorAccent));
+            holder.binding.layoutAmount.setAlpha(0.5f);
+        } else if (topUpAmount.isSelected()) {
+            // Selected state
+            holder.binding.layoutAmount.setBackgroundResource(R.drawable.bg_selected_amount);
+            holder.binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
+            holder.binding.layoutAmount.setAlpha(1.0f);
+        } else {
+            // Normal state
+            holder.binding.layoutAmount.setBackgroundResource(R.drawable.bg_unselected_amount);
+            holder.binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.textColorHeading));
+            holder.binding.layoutAmount.setAlpha(1.0f);
+        }
     }
 
     @Override
     public int getItemCount() {
         return listTopUpAmounts != null ? listTopUpAmounts.size() : 0;
+    }
+
+    // Thêm method setEnabled
+    public void setEnabled(boolean enabled) {
+        this.isEnabled = enabled;
+        notifyDataSetChanged(); // Refresh tất cả items
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
     }
 
     public void release() {
