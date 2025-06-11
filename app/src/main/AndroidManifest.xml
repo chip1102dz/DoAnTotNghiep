@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Queries cho MoMo app -->
     <queries>
+        <package android:name="com.mservice.moca.wallet" />
+
         <intent>
             <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
 
             <data android:scheme="https" />
         </intent>
@@ -31,14 +30,43 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
-            android:name=".activity.QRPaymentActivity"
+            android:name=".activity.WebQRPaymentActivity"
             android:exported="false" />
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao" /> <!-- Splash Activity (Main Launcher) -->
         <activity
-            android:name=".activity.PaymentResultActivity"
-            android:exported="false" />
+            android:name=".activity.SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> <!-- Main Activity -->
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="false" /> <!-- Login Activity -->
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="false" /> <!-- Register Activity -->
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:exported="false" /> <!-- Forgot Password Activity -->
+        <activity
+            android:name=".activity.ForgotPasswordActivity"
+            android:exported="false" /> <!-- Change Password Activity -->
+        <activity
+            android:name=".activity.ChangePasswordActivity"
+            android:exported="false" /> <!-- User Profile Activity -->
+        <activity
+            android:name=".activity.UserProfileActivity"
+            android:exported="false" /> <!-- TopUp Activity với deep link -->
         <activity
             android:name=".activity.TopUpActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -49,83 +77,66 @@
                     android:host="momo"
                     android:scheme="doantotnghiep" />
             </intent-filter>
-        </activity>
+        </activity> <!-- QR Payment Activity -->
         <activity
-            android:name=".activity.UserProfileActivity"
-            android:exported="false" />
+            android:name=".activity.QRPaymentActivity"
+            android:exported="false" /> <!-- Payment Result Activity với deep link -->
         <activity
-            android:name=".activity.ChatBotAiActivity"
-            android:exported="false" />
+            android:name=".activity.PaymentResultActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-        <activity
-            android:name=".activity.admin.AdminStoreLocationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.StoreLocationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.SearchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.FeedbackActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.ChangePasswordActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.RegisterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.ForgotPasswordActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.RatingReviewActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.TrackingOrderActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.ReceiptOrderActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.PaymentActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.VoucherActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.AddressActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.PaymentMethodActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.CartActivity"
-            android:exported="false" />
+                <data
+                    android:host="momo"
+                    android:scheme="doantotnghiep" />
+            </intent-filter>
+        </activity> <!-- Product Detail Activity -->
         <activity
             android:name=".activity.ProductDetailActivity"
-            android:exported="false" />
+            android:exported="false" /> <!-- Cart Activity -->
+        <activity
+            android:name=".activity.CartActivity"
+            android:exported="false" /> <!-- Payment Method Activity -->
+        <activity
+            android:name=".activity.PaymentMethodActivity"
+            android:exported="false" /> <!-- Address Activity -->
+        <activity
+            android:name=".activity.AddressActivity"
+            android:exported="false" /> <!-- Voucher Activity -->
+        <activity
+            android:name=".activity.VoucherActivity"
+            android:exported="false" /> <!-- Payment Activity -->
+        <activity
+            android:name=".activity.PaymentActivity"
+            android:exported="false" /> <!-- Receipt Order Activity -->
+        <activity
+            android:name=".activity.ReceiptOrderActivity"
+            android:exported="false" /> <!-- Tracking Order Activity -->
+        <activity
+            android:name=".activity.TrackingOrderActivity"
+            android:exported="false" /> <!-- Rating Review Activity -->
+        <activity
+            android:name=".activity.RatingReviewActivity"
+            android:exported="false" /> <!-- Search Activity -->
+        <activity
+            android:name=".activity.SearchActivity"
+            android:exported="false" /> <!-- Feedback Activity -->
+        <activity
+            android:name=".activity.FeedbackActivity"
+            android:exported="false" /> <!-- ChatBot AI Activity -->
+        <activity
+            android:name=".activity.ChatBotAiActivity"
+            android:exported="false" /> <!-- Store Location Activity -->
+        <activity
+            android:name=".activity.StoreLocationActivity"
+            android:exported="false" /> <!-- Admin Activities -->
         <activity
             android:name=".activity.admin.AdminMainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.admin.AdminFeedbackActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.admin.AdminVoucherActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.admin.AdminAddVoucherActivity"
             android:exported="false" />
         <activity
             android:name=".activity.admin.AdminAddCategoryActivity"
@@ -135,6 +146,15 @@
             android:exported="false" />
         <activity
             android:name=".activity.admin.AdminProductByCategoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.admin.AdminAddVoucherActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.admin.AdminVoucherActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.admin.AdminFeedbackActivity"
             android:exported="false" />
         <activity
             android:name=".activity.admin.AdminRoleActivity"
@@ -149,14 +169,8 @@
             android:name=".activity.admin.AdminTopProductActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.SplashActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".activity.admin.AdminStoreLocationActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
