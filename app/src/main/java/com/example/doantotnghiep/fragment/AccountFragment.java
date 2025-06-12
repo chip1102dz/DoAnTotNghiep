@@ -1,6 +1,7 @@
 package com.example.doantotnghiep.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +9,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.activity.ChangePasswordActivity;
 import com.example.doantotnghiep.activity.FeedbackActivity;
@@ -25,10 +28,15 @@ import com.example.doantotnghiep.utils.GlobalFunction;
 import com.example.doantotnghiep.utils.GlideUtils;
 import com.example.doantotnghiep.utils.StringUtil;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AccountFragment extends Fragment {
+
+    private static final String TAG = "AccountFragment";
 
     private FragmentAccountBinding binding;
 
@@ -48,6 +56,9 @@ public class AccountFragment extends Fragment {
     private LinearLayout layoutChangePassword;
     private LinearLayout layoutSignOut;
     private LinearLayout layoutTopUp;
+
+    // Firebase listener
+    private ValueEventListener balanceListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -129,6 +140,118 @@ public class AccountFragment extends Fragment {
 
     private void loadUserInfo() {
         User user = DataStoreManager.getUser();
+        if (user == null || StringUtil.isEmpty(user.getEmail())) return;
+
+        // Load thông tin cơ bản từ local trước
+        displayUserInfo(user);
+
+        // Sau đó đồng bộ từ Firebase
+        syncUserDataFromFirebase();
+
+        // Setup realtime sync cho số dư
+        setupRealtimeBalanceSync();
+    }
+
+    private void syncUserDataFromFirebase() {
+        String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
+        MyApplication.get(getActivity()).getUserDatabaseReference(userKey)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists() && getActivity() != null) {
+                            Log.d(TAG, "Syncing user data from Firebase");
+
+                            // Lấy dữ liệu từ Firebase
+                            String fullName = snapshot.child("fullName").getValue(String.class);
+                            String phoneNumber = snapshot.child("phoneNumber").getValue(String.class);
+                            String address = snapshot.child("address").getValue(String.class);
+                            String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                            String dateOfBirth = snapshot.child("dateOfBirth").getValue(String.class);
+                            String gender = snapshot.child("gender").getValue(String.class);
+                            Double balance = snapshot.child("balance").getValue(Double.class);
+
+                            // Cập nhật User object
+                            User currentUser = DataStoreManager.getUser();
+                            boolean isUpdated = false;
+
+                            if (fullName != null && !fullName.equals(currentUser.getFullName())) {
+                                currentUser.setFullName(fullName);
+                                isUpdated = true;
+                            }
+                            if (phoneNumber != null && !phoneNumber.equals(currentUser.getPhoneNumber())) {
+                                currentUser.setPhoneNumber(phoneNumber);
+                                isUpdated = true;
+                            }
+                            if (address != null && !address.equals(currentUser.getAddress())) {
+                                currentUser.setAddress(address);
+                                isUpdated = true;
+                            }
+                            if (profileImageUrl != null && !profileImageUrl.equals(currentUser.getProfileImageUrl())) {
+                                currentUser.setProfileImageUrl(profileImageUrl);
+                                isUpdated = true;
+                            }
+                            if (dateOfBirth != null && !dateOfBirth.equals(currentUser.getDateOfBirth())) {
+                                currentUser.setDateOfBirth(dateOfBirth);
+                                isUpdated = true;
+                            }
+                            if (gender != null && !gender.equals(currentUser.getGender())) {
+                                currentUser.setGender(gender);
+                                isUpdated = true;
+                            }
+                            if (balance != null && balance != currentUser.getBalance()) {
+                                currentUser.setBalance(balance);
+                                isUpdated = true;
+                                Log.d(TAG, "Updated balance from Firebase: " + balance);
+                            }
+
+                            // Lưu lại vào local nếu có thay đổi
+                            if (isUpdated) {
+                                DataStoreManager.setUser(currentUser);
+                                // Cập nhật UI
+                                displayUserInfo(currentUser);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, "Failed to sync user data: " + error.getMessage());
+                    }
+                });
+    }
+
+    private void setupRealtimeBalanceSync() {
+        String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
+        balanceListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && getActivity() != null) {
+                    Double balance = snapshot.child("balance").getValue(Double.class);
+                    if (balance != null) {
+                        User currentUser = DataStoreManager.getUser();
+                        if (currentUser != null && balance != currentUser.getBalance()) {
+                            currentUser.setBalance(balance);
+                            DataStoreManager.setUser(currentUser);
+
+                            // Cập nhật UI
+                            tvBalance.setText(currentUser.getFormattedBalance());
+                            Log.d(TAG, "Real-time balance updated: " + balance);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Balance sync error: " + error.getMessage());
+            }
+        };
+
+        MyApplication.get(getActivity()).getUserDatabaseReference(userKey)
+                .addValueEventListener(balanceListener);
+    }
+
+    private void displayUserInfo(User user) {
         if (user == null) return;
 
         // Load basic info
@@ -200,6 +323,14 @@ public class AccountFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        // Remove listener để tránh memory leak
+        if (balanceListener != null && getActivity() != null) {
+            String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
+            MyApplication.get(getActivity()).getUserDatabaseReference(userKey)
+                    .removeEventListener(balanceListener);
+        }
+
         binding = null;
     }
 }

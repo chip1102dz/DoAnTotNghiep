@@ -1,0 +1,60 @@
+<!-- res/drawable/ic_notification_empty.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#F5F5F5"
+        android:pathData="M60,60m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0" />
+
+    <!-- Notification Bell Outline -->
+    <path
+        android:strokeColor="#E0E0E0"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,85c2.76,0 5,-2.24 5,-5h-10c0,2.76 2.24,5 5,5zM75,70v-15c0,-7.67 -4.1,-14.1 -11.25,-15.8V37.5c0,-2.07 -1.68,-3.75 -3.75,-3.75s-3.75,1.68 -3.75,3.75v1.7C49.1,40.9 45,47.33 45,55v15l-5,5v2.5h40V75l-5,-5z" />
+
+    <!-- Crossed Lines (indicating empty/disabled) -->
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M40,40 L80,80" />
+
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M80,40 L40,80" />
+
+    <!-- Dots pattern for decoration -->
+    <circle
+        android:fillColor="#E8E8E8"
+        android:cx="30"
+        android:cy="30"
+        android:r="2" />
+
+    <circle
+        android:fillColor="#E8E8E8"
+        android:cx="90"
+        android:cy="30"
+        android:r="2" />
+
+    <circle
+        android:fillColor="#E8E8E8"
+        android:cx="30"
+        android:cy="90"
+        android:r="2" />
+
+    <circle
+        android:fillColor="#E8E8E8"
+        android:cx="90"
+        android:cy="90"
+        android:r="2" />
+
+</vector>

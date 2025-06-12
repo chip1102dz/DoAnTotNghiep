@@ -18,6 +18,7 @@
     <color name="black">#000000</color>
     <color name="red">#E33131</color>
     <color name="green">#43936C</color>
+    <color name="orange">#FF5722</color>
     <color name="blue">#3F51B5</color>
     <color name="black_overlay">#667C7474</color>
     <color name="dividerColor">#BDBDBD</color>

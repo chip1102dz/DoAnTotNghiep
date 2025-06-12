@@ -3,6 +3,7 @@ package com.example.doantotnghiep.activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -14,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.activity.admin.AdminMainActivity;
 import com.example.doantotnghiep.databinding.ActivityRegisterBinding;
@@ -25,13 +27,20 @@ import com.example.doantotnghiep.utils.StringUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class RegisterActivity extends BaseActivity {
+
+    private static final String TAG = "RegisterActivity";
+
     ActivityRegisterBinding binding;
     private EditText edtEmail;
     private EditText edtPassword;
     private Button btnRegister;
     private LinearLayout layoutLogin;
     private boolean isEnableButtonRegister;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,12 +50,14 @@ public class RegisterActivity extends BaseActivity {
         initUi();
         initListener();
     }
+
     private void initUi() {
         edtEmail = binding.edtEmail;
         edtPassword = binding.edtPassword;
         btnRegister = binding.btnRegister;
         layoutLogin = binding.layoutLogin;
     }
+
     private void initListener() {
         edtEmail.addTextChangedListener(new TextWatcher() {
             @Override
@@ -129,25 +140,54 @@ public class RegisterActivity extends BaseActivity {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    showProgressDialog(false);
                     if (task.isSuccessful()) {
                         FirebaseUser user = firebaseAuth.getCurrentUser();
                         if (user != null) {
+                            // Tạo User object
                             User userObject = new User(user.getEmail(), password);
                             if (user.getEmail() != null && user.getEmail().contains(Constant.ADMIN_EMAIL_FORMAT)) {
                                 userObject.setAdmin(true);
                             }
+
+                            // Lưu user vào local
                             DataStoreManager.setUser(userObject);
-                            goToMainActivity();
+
+                            // Tạo bản ghi user trong Firebase
+                            createUserInFirebase(userObject);
                         }
                     } else {
+                        showProgressDialog(false);
                         showToastMessage(getString(R.string.msg_register_error));
                     }
                 });
     }
 
-    private void goToMainActivity() {
-        if (DataStoreManager.getUser().isAdmin()) {
+    private void createUserInFirebase(User userObject) {
+        String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
+
+        // Tạo dữ liệu user ban đầu
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("email", userObject.getEmail());
+        userMap.put("balance", 0.0); // Số dư ban đầu = 0
+        userMap.put("createdTime", System.currentTimeMillis());
+
+        MyApplication.get(this).getUserDatabaseReference(userKey)
+                .setValue(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User created successfully in Firebase");
+                    showProgressDialog(false);
+                    goToMainActivity(userObject);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create user in Firebase: " + e.getMessage());
+                    showProgressDialog(false);
+                    // Vẫn chuyển activity nếu có lỗi
+                    goToMainActivity(userObject);
+                });
+    }
+
+    private void goToMainActivity(User userObject) {
+        if (userObject.isAdmin()) {
             GlobalFunction.startActivity(this, AdminMainActivity.class);
         } else {
             GlobalFunction.startActivity(this, MainActivity.class);

@@ -11,7 +11,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MyApplication extends Application {
 
-
     private static final String FIREBASE_URL = "https://doantotnghieppro-d2186-default-rtdb.firebaseio.com";
     private FirebaseDatabase mFirebaseDatabase;
 
@@ -66,7 +65,17 @@ public class MyApplication extends Application {
     public DatabaseReference getOrderDetailDatabaseReference(long orderId) {
         return mFirebaseDatabase.getReference("order/" + orderId);
     }
+
     public DatabaseReference getStoreLocationDatabaseReference() {
         return mFirebaseDatabase.getReference("store_location");
+    }
+
+    // Thêm các method mới cho User
+    public DatabaseReference getUserDatabaseReference() {
+        return mFirebaseDatabase.getReference("users");
+    }
+
+    public DatabaseReference getUserDatabaseReference(String userKey) {
+        return mFirebaseDatabase.getReference("users/" + userKey);
     }
 }

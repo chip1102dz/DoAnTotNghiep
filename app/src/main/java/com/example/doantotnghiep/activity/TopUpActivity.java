@@ -312,8 +312,7 @@ public class TopUpActivity extends BaseActivity {
         if (currentUser == null) return;
 
         String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
-        DatabaseReference userRef = MyApplication.get(this).getAdminDatabaseReference()
-                .getParent().child("users").child(userKey);
+        DatabaseReference userRef = MyApplication.get(this).getUserDatabaseReference(userKey);
 
         Map<String, Object> balanceUpdate = new HashMap<>();
         balanceUpdate.put("balance", newBalance);
@@ -321,9 +320,29 @@ public class TopUpActivity extends BaseActivity {
         balanceUpdate.put("lastTopUpAmount", topUpAmount);
         balanceUpdate.put("email", currentUser.getEmail());
 
+        // Thêm các thông tin user khác để đảm bảo tính toàn vẹn dữ liệu
+        if (!StringUtil.isEmpty(currentUser.getFullName())) {
+            balanceUpdate.put("fullName", currentUser.getFullName());
+        }
+        if (!StringUtil.isEmpty(currentUser.getPhoneNumber())) {
+            balanceUpdate.put("phoneNumber", currentUser.getPhoneNumber());
+        }
+        if (!StringUtil.isEmpty(currentUser.getAddress())) {
+            balanceUpdate.put("address", currentUser.getAddress());
+        }
+        if (!StringUtil.isEmpty(currentUser.getProfileImageUrl())) {
+            balanceUpdate.put("profileImageUrl", currentUser.getProfileImageUrl());
+        }
+        if (!StringUtil.isEmpty(currentUser.getDateOfBirth())) {
+            balanceUpdate.put("dateOfBirth", currentUser.getDateOfBirth());
+        }
+        if (!StringUtil.isEmpty(currentUser.getGender())) {
+            balanceUpdate.put("gender", currentUser.getGender());
+        }
+
         userRef.updateChildren(balanceUpdate)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Balance updated successfully in Firebase");
+                    Log.d(TAG, "Balance updated successfully in Firebase: " + newBalance);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to update balance in Firebase: " + e.getMessage());

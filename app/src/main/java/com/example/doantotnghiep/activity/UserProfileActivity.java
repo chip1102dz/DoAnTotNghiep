@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -38,6 +39,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserProfileActivity extends BaseActivity {
 
+    private static final String TAG = "UserProfileActivity";
     private ActivityUserProfileBinding binding;
 
     private CircleImageView imgAvatar;
@@ -246,8 +248,7 @@ public class UserProfileActivity extends BaseActivity {
 
         // Save to Firebase
         String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
-        DatabaseReference userRef = MyApplication.get(this).getAdminDatabaseReference()
-                .getParent().child("users").child(userKey);
+        DatabaseReference userRef = MyApplication.get(this).getUserDatabaseReference(userKey);
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", currentUser.getEmail());
@@ -256,7 +257,7 @@ public class UserProfileActivity extends BaseActivity {
         userMap.put("address", address);
         userMap.put("dateOfBirth", dateOfBirth);
         userMap.put("gender", gender);
-        userMap.put("balance", currentUser.getBalance());
+        userMap.put("balance", currentUser.getBalance()); // Giữ nguyên số dư hiện tại
         if (!StringUtil.isEmpty(imageUrl)) {
             userMap.put("profileImageUrl", imageUrl);
         }
@@ -265,11 +266,13 @@ public class UserProfileActivity extends BaseActivity {
                 .addOnSuccessListener(aVoid -> {
                     showProgressDialog(false);
                     showToastMessage("Cập nhật thông tin thành công!");
+                    Log.d(TAG, "User profile updated successfully");
                     finish();
                 })
                 .addOnFailureListener(e -> {
                     showProgressDialog(false);
                     showToastMessage("Lỗi khi cập nhật: " + e.getMessage());
+                    Log.e(TAG, "Failed to update user profile: " + e.getMessage());
                 });
     }
 
