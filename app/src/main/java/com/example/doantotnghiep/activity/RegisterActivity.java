@@ -19,6 +19,7 @@ import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.activity.admin.AdminMainActivity;
 import com.example.doantotnghiep.databinding.ActivityRegisterBinding;
+import com.example.doantotnghiep.helper.NotificationHelper;
 import com.example.doantotnghiep.model.User;
 import com.example.doantotnghiep.prefs.DataStoreManager;
 import com.example.doantotnghiep.utils.Constant;
@@ -168,20 +169,23 @@ public class RegisterActivity extends BaseActivity {
         // Tạo dữ liệu user ban đầu
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", userObject.getEmail());
-        userMap.put("balance", 0.0); // Số dư ban đầu = 0
+        userMap.put("balance", 0.0);
         userMap.put("createdTime", System.currentTimeMillis());
 
         MyApplication.get(this).getUserDatabaseReference(userKey)
                 .setValue(userMap)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "User created successfully in Firebase");
+
+                    // Tạo notification chào mừng
+                    NotificationHelper.createWelcomeNotification(this, userObject.getEmail());
+
                     showProgressDialog(false);
                     goToMainActivity(userObject);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to create user in Firebase: " + e.getMessage());
                     showProgressDialog(false);
-                    // Vẫn chuyển activity nếu có lỗi
                     goToMainActivity(userObject);
                 });
     }

@@ -12,6 +12,7 @@ import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.activity.BaseActivity;
 import com.example.doantotnghiep.databinding.ActivityAdminAddVoucherBinding;
+import com.example.doantotnghiep.helper.VoucherNotificationHelper;
 import com.example.doantotnghiep.model.Voucher;
 import com.example.doantotnghiep.utils.Constant;
 import com.example.doantotnghiep.utils.GlobalFunction;
@@ -84,8 +85,9 @@ public class AdminAddVoucherActivity extends BaseActivity {
         if (StringUtil.isEmpty(strMinimum)) {
             strMinimum = "0";
         }
-        // Update voucher
+
         if (isUpdate) {
+            // Update voucher
             showProgressDialog(true);
             Map<String, Object> map = new HashMap<>();
             map.put("discount", Integer.parseInt(strDiscount));
@@ -98,20 +100,27 @@ public class AdminAddVoucherActivity extends BaseActivity {
                                 getString(R.string.msg_edit_voucher_success), Toast.LENGTH_SHORT).show();
                         GlobalFunction.hideSoftKeyboard(this);
                     });
-            return;
-        }
+        } else {
+            // Add new voucher
+            showProgressDialog(true);
+            long voucherId = System.currentTimeMillis();
+            Voucher voucher = new Voucher(voucherId, Integer.parseInt(strDiscount), Integer.parseInt(strMinimum));
 
-        // Add voucher
-        showProgressDialog(true);
-        long voucherId = System.currentTimeMillis();
-        Voucher voucher = new Voucher(voucherId, Integer.parseInt(strDiscount), Integer.parseInt(strMinimum));
-        MyApplication.get(this).getVoucherDatabaseReference()
-                .child(String.valueOf(voucherId)).setValue(voucher, (error, ref) -> {
-                    showProgressDialog(false);
-                    edtDiscount.setText("");
-                    edtMinimum.setText("");
-                    GlobalFunction.hideSoftKeyboard(this);
-                    Toast.makeText(this, getString(R.string.msg_add_voucher_success), Toast.LENGTH_SHORT).show();
-                });
+            MyApplication.get(this).getVoucherDatabaseReference()
+                    .child(String.valueOf(voucherId)).setValue(voucher, (error, ref) -> {
+                        showProgressDialog(false);
+                        if (error == null) {
+                            // Gửi thông báo voucher mới cho tất cả users
+                            VoucherNotificationHelper.broadcastNewVoucherNotification(this, voucher);
+
+                            Toast.makeText(this, getString(R.string.msg_add_voucher_success), Toast.LENGTH_SHORT).show();
+                            edtDiscount.setText("");
+                            edtMinimum.setText("");
+                            GlobalFunction.hideSoftKeyboard(this);
+                        } else {
+                            Toast.makeText(this, "Lỗi tạo voucher: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 }

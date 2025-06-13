@@ -15,6 +15,7 @@ import com.example.doantotnghiep.database.ProductDatabase;
 import com.example.doantotnghiep.databinding.ActivityPaymentBinding;
 import com.example.doantotnghiep.event.DisplayCartEvent;
 import com.example.doantotnghiep.event.OrderSuccessEvent;
+import com.example.doantotnghiep.helper.NotificationHelper;
 import com.example.doantotnghiep.model.Order;
 import com.example.doantotnghiep.utils.Constant;
 import com.example.doantotnghiep.utils.GlobalFunction;
@@ -44,17 +45,36 @@ public class PaymentActivity extends BaseActivity {
         MyApplication.get(this).getOrderDatabaseReference()
                 .child(String.valueOf(mOrderBooking.getId()))
                 .setValue(mOrderBooking, (error1, ref1) -> {
+                    if (error1 == null) {
+                        // Tạo notification cho user
+                        NotificationHelper.createOrderStatusNotification(
+                                this,
+                                mOrderBooking.getUserEmail(),
+                                mOrderBooking.getId(),
+                                -1, // No previous status
+                                Order.STATUS_NEW
+                        );
 
-                    ProductDatabase.getInstance(this).productDAO().deleteAllProduct();
-                    EventBus.getDefault().post(new DisplayCartEvent());
-                    EventBus.getDefault().post(new OrderSuccessEvent());
+                        // Tạo notification cho admin về đơn hàng mới
+                        NotificationHelper.createNewOrderNotificationForAdmin(
+                                this,
+                                mOrderBooking.getId(),
+                                mOrderBooking.getUserEmail()
+                        );
 
-                    Bundle bundle = new Bundle();
-                    bundle.putLong(Constant.ORDER_ID, mOrderBooking.getId());
-                    GlobalFunction.startActivity(PaymentActivity.this,
-                            ReceiptOrderActivity.class, bundle);
+                        // Clear cart và chuyển trang
+                        ProductDatabase.getInstance(this).productDAO().deleteAllProduct();
+                        EventBus.getDefault().post(new DisplayCartEvent());
+                        EventBus.getDefault().post(new OrderSuccessEvent());
 
-                    finish();
+                        Bundle bundle = new Bundle();
+                        bundle.putLong(Constant.ORDER_ID, mOrderBooking.getId());
+                        GlobalFunction.startActivity(PaymentActivity.this,
+                                ReceiptOrderActivity.class, bundle);
+                        finish();
+                    } else {
+                        showToastMessage("Lỗi tạo đơn hàng: " + error1.getMessage());
+                    }
                 });
     }
 

@@ -21,7 +21,9 @@ import com.example.doantotnghiep.adapter.ViewPagerAdapter;
 import com.example.doantotnghiep.database.ProductDatabase;
 import com.example.doantotnghiep.databinding.ActivityMainBinding;
 import com.example.doantotnghiep.event.DisplayCartEvent;
+import com.example.doantotnghiep.helper.NotificationScheduler;
 import com.example.doantotnghiep.model.Product;
+import com.example.doantotnghiep.prefs.DataStoreManager;
 import com.example.doantotnghiep.utils.Constant;
 import com.example.doantotnghiep.utils.GlobalFunction;
 import com.example.doantotnghiep.utils.StringUtil;
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
+        }
+        if (!DataStoreManager.getUser().isAdmin()) {
+            NotificationScheduler scheduler = new NotificationScheduler(this);
+            scheduler.startScheduling();
         }
         initUi();
         mViewPager2 = binding.viewpager2;

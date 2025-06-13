@@ -20,6 +20,7 @@ import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
 import com.example.doantotnghiep.adapter.ProductOrderAdapter;
 import com.example.doantotnghiep.databinding.ActivityTrackingOrderBinding;
+import com.example.doantotnghiep.helper.NotificationHelper;
 import com.example.doantotnghiep.model.Order;
 import com.example.doantotnghiep.model.RatingReview;
 import com.example.doantotnghiep.prefs.DataStoreManager;
@@ -181,22 +182,54 @@ public class TrackingOrderActivity extends BaseActivity {
         }
     }
 
-    private void updateStatusOrder(int status) {
+    private void updateStatusOrder(int newStatus) {
         if (mOrder == null) return;
+
+        int oldStatus = mOrder.getStatus();
+
         Map<String, Object> map = new HashMap<>();
-        map.put("status", status);
+        map.put("status", newStatus);
 
         MyApplication.get(this).getOrderDatabaseReference()
                 .child(String.valueOf(mOrder.getId()))
                 .updateChildren(map, (error, ref) -> {
-                    if (Order.STATUS_COMPLETE == status) {
-                        Bundle bundle = new Bundle();
-                        RatingReview ratingReview = new RatingReview(RatingReview.TYPE_RATING_REVIEW_ORDER,
-                                String.valueOf(mOrder.getId()));
-                        bundle.putSerializable(Constant.RATING_REVIEW_OBJECT, ratingReview);
-                        GlobalFunction.startActivity(TrackingOrderActivity.this,
-                                RatingReviewActivity.class, bundle);
-                        finish();
+                    if (error == null) {
+                        // Tạo notification cho user khi admin cập nhật trạng thái
+                        NotificationHelper.createOrderStatusNotification(
+                                this,
+                                mOrder.getUserEmail(),
+                                mOrder.getId(),
+                                oldStatus,
+                                newStatus
+                        );
+
+                        // Tạo notification qua MyApplication (backup)
+                        MyApplication.get(this).createOrderNotification(
+                                mOrder.getUserEmail(),
+                                mOrder.getId(),
+                                newStatus
+                        );
+
+                        if (Order.STATUS_COMPLETE == newStatus) {
+                            // Tạo notification nhắc nhở đánh giá
+                            NotificationHelper.createReviewReminderNotification(
+                                    this,
+                                    mOrder.getUserEmail(),
+                                    mOrder.getId()
+                            );
+
+                            Bundle bundle = new Bundle();
+                            RatingReview ratingReview = new RatingReview(
+                                    RatingReview.TYPE_RATING_REVIEW_ORDER,
+                                    String.valueOf(mOrder.getId())
+                            );
+                            bundle.putSerializable(Constant.RATING_REVIEW_OBJECT, ratingReview);
+                            GlobalFunction.startActivity(TrackingOrderActivity.this,
+                                    RatingReviewActivity.class, bundle);
+                            finish();
+                        }
+                    } else {
+                        showToastMessage("Lỗi cập nhật trạng thái: " + error.getMessage());
                     }
                 });
     }
