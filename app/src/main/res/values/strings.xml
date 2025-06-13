@@ -296,4 +296,6 @@
     <string name="error_upload_image">Lỗi khi tải ảnh lên: %s</string>
     <string name="error_update_profile">Lỗi khi cập nhật: %s</string>
     <string name="error_update_balance">Lỗi khi cập nhật số dư: %s</string>
+
+    <string name="notification_title">Thông báo</string>
 </resources>

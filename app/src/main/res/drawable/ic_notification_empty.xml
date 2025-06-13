@@ -1,4 +1,3 @@
-<!-- res/drawable/ic_notification_empty.xml -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="120dp"
     android:height="120dp"
@@ -32,29 +31,9 @@
         android:strokeLineCap="round"
         android:pathData="M80,40 L40,80" />
 
-    <!-- Dots pattern for decoration -->
-    <circle
-        android:fillColor="#E8E8E8"
-        android:cx="30"
-        android:cy="30"
-        android:r="2" />
-
-    <circle
-        android:fillColor="#E8E8E8"
-        android:cx="90"
-        android:cy="30"
-        android:r="2" />
-
-    <circle
-        android:fillColor="#E8E8E8"
-        android:cx="30"
-        android:cy="90"
-        android:r="2" />
-
-    <circle
-        android:fillColor="#E8E8E8"
-        android:cx="90"
-        android:cy="90"
-        android:r="2" />
-
+    <!-- Replaced circles with paths -->
+    <path android:fillColor="#E8E8E8" android:pathData="M32,30a2,2 0 1,1 -4,0a2,2 0 1,1 4,0" />
+    <path android:fillColor="#E8E8E8" android:pathData="M92,30a2,2 0 1,1 -4,0a2,2 0 1,1 4,0" />
+    <path android:fillColor="#E8E8E8" android:pathData="M32,90a2,2 0 1,1 -4,0a2,2 0 1,1 4,0" />
+    <path android:fillColor="#E8E8E8" android:pathData="M92,90a2,2 0 1,1 -4,0a2,2 0 1,1 4,0" />
 </vector>
