@@ -141,11 +141,27 @@ public class User {
     }
 
     public boolean deductBalance(double amount) {
+        // Kiểm tra số dư có đủ không (thêm buffer nhỏ để tránh lỗi làm tròn)
         if (this.balance >= amount) {
             this.balance -= amount;
+            // Đảm bảo không bị âm do lỗi làm tròn
+            if (this.balance < 0) {
+                this.balance = 0;
+            }
             return true;
         }
         return false;
+    }
+    public boolean hasEnoughBalance(double amount) {
+        return this.balance >= amount;
+    }
+
+    //method lấy số dư còn thiếu
+    public double getBalanceShortage(double requiredAmount) {
+        if (this.balance >= requiredAmount) {
+            return 0;
+        }
+        return requiredAmount - this.balance;
     }
 
     public String toJSon() {

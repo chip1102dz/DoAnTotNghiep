@@ -5,10 +5,6 @@ import android.os.Handler;
 import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.doantotnghiep.MyApplication;
 import com.example.doantotnghiep.R;
@@ -34,6 +30,7 @@ public class PaymentActivity extends BaseActivity {
 
     ActivityPaymentBinding binding;
     private Order mOrderBooking;
+    private boolean isBalancePayment = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,49 +51,77 @@ public class PaymentActivity extends BaseActivity {
     }
 
     private void processPayment() {
+        if (mOrderBooking == null) {
+            showToastMessage("Lỗi: Không tìm thấy thông tin đơn hàng");
+            finish();
+            return;
+        }
+
         // Kiểm tra phương thức thanh toán
-        if (mOrderBooking.getPaymentMethod().equals(getString(R.string.title_payment_method_balance))) {
+        String paymentMethod = mOrderBooking.getPaymentMethod();
+        Log.d(TAG, "Payment method: " + paymentMethod);
+        Log.d(TAG, "Balance payment method name: " + getString(R.string.title_payment_method_balance));
+
+        if (paymentMethod != null && paymentMethod.equals(getString(R.string.title_payment_method_balance))) {
             // Thanh toán bằng số dư
+            isBalancePayment = true;
             processBalancePayment();
         } else {
             // Thanh toán tiền mặt - tạo đơn hàng trực tiếp
+            isBalancePayment = false;
             createOrderFirebase();
         }
     }
 
     private void processBalancePayment() {
         User currentUser = DataStoreManager.getUser();
+        double currentBalance = currentUser.getBalance();
+        double orderTotal = (double) mOrderBooking.getTotal();
 
-        // Kiểm tra số dư một lần nữa
-        if (currentUser.getBalance() < mOrderBooking.getTotal()) {
-            showToastMessage("Số dư không đủ để thanh toán!");
+        Log.d(TAG, "=== BALANCE PAYMENT PROCESSING ===");
+        Log.d(TAG, "Current balance: " + currentBalance);
+        Log.d(TAG, "Order total: " + orderTotal);
+
+        // Kiểm tra số dư lần cuối
+        if (currentBalance < orderTotal) {
+            double shortage = orderTotal - currentBalance;
+            Log.e(TAG, "Insufficient balance! Shortage: " + shortage);
+
+            showToastMessage("❌ SỐ DƯ KHÔNG ĐỦ!\n\n" +
+                    "💰 Số dư: " + currentUser.getFormattedBalance() + "\n" +
+                    "💳 Cần: " + String.format("%,.0f", orderTotal) + "đ\n" +
+                    "❌ Thiếu: " + String.format("%,.0f", shortage) + "đ");
             finish();
             return;
         }
 
-        // Trừ tiền từ số dư
-        boolean success = currentUser.deductBalance(mOrderBooking.getTotal());
-        if (success) {
-            // Cập nhật user trong local
-            DataStoreManager.setUser(currentUser);
+        // Thực hiện trừ tiền
+        double newBalance = currentBalance - orderTotal;
+        Log.d(TAG, "New balance after deduction: " + newBalance);
 
-            // Cập nhật số dư trong Firebase
-            updateUserBalanceInFirebase(currentUser);
+        // Cập nhật số dư trong User object
+        currentUser.setBalance(newBalance);
 
-            // Tạo đơn hàng
+        // Lưu vào SharedPreferences ngay lập tức
+        DataStoreManager.setUser(currentUser);
+
+        Log.d(TAG, "Balance updated in DataStore: " + DataStoreManager.getUser().getBalance());
+
+        // Cập nhật vào Firebase
+        updateUserBalanceInFirebase(currentUser, () -> {
+            // Callback sau khi cập nhật Firebase thành công
+            Log.d(TAG, "Firebase balance update completed");
             createOrderFirebase();
-        } else {
-            showToastMessage("Không thể thực hiện thanh toán!");
-            finish();
-        }
+        });
     }
 
-    private void updateUserBalanceInFirebase(User user) {
+    private void updateUserBalanceInFirebase(User user, Runnable onComplete) {
         String userKey = String.valueOf(GlobalFunction.encodeEmailUser());
 
         Map<String, Object> balanceUpdate = new HashMap<>();
         balanceUpdate.put("balance", user.getBalance());
         balanceUpdate.put("lastPaymentTime", System.currentTimeMillis());
+        balanceUpdate.put("lastPaymentAmount", (double) mOrderBooking.getTotal());
         balanceUpdate.put("email", user.getEmail());
 
         // Giữ nguyên các thông tin khác của user
@@ -119,19 +144,34 @@ public class PaymentActivity extends BaseActivity {
             balanceUpdate.put("gender", user.getGender());
         }
 
+        Log.d(TAG, "Updating Firebase with balance: " + user.getBalance());
+
         MyApplication.get(this).getUserDatabaseReference(userKey)
                 .updateChildren(balanceUpdate)
-                .addOnSuccessListener(aVoid ->
-                        Log.d(TAG, "User balance updated successfully: " + user.getBalance()))
-                .addOnFailureListener(e ->
-                        Log.e(TAG, "Failed to update user balance: " + e.getMessage()));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Firebase balance update SUCCESS: " + user.getBalance());
+                    if (onComplete != null) {
+                        onComplete.run();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ Firebase balance update FAILED: " + e.getMessage());
+                    // Vẫn tiếp tục tạo đơn hàng vì số dư local đã được cập nhật
+                    if (onComplete != null) {
+                        onComplete.run();
+                    }
+                });
     }
 
     private void createOrderFirebase() {
+        Log.d(TAG, "Creating order in Firebase...");
+
         MyApplication.get(this).getOrderDatabaseReference()
                 .child(String.valueOf(mOrderBooking.getId()))
                 .setValue(mOrderBooking, (error1, ref1) -> {
                     if (error1 == null) {
+                        Log.d(TAG, "✅ Order created successfully");
+
                         // Tạo notification cho user
                         NotificationHelper.createOrderStatusNotification(
                                 this,
@@ -153,15 +193,46 @@ public class PaymentActivity extends BaseActivity {
                         EventBus.getDefault().post(new DisplayCartEvent());
                         EventBus.getDefault().post(new OrderSuccessEvent());
 
+                        // Hiển thị thông báo thành công
+                        if (isBalancePayment) {
+                            User updatedUser = DataStoreManager.getUser();
+                            showToastMessage("✅ THANH TOÁN THÀNH CÔNG!\n\n" +
+                                    "💳 Đã trừ: " + String.format("%,.0f", (double) mOrderBooking.getTotal()) + "đ\n" +
+                                    "💰 Số dư còn lại: " + updatedUser.getFormattedBalance());
+                        }
+
                         Bundle bundle = new Bundle();
                         bundle.putLong(Constant.ORDER_ID, mOrderBooking.getId());
                         GlobalFunction.startActivity(PaymentActivity.this,
                                 ReceiptOrderActivity.class, bundle);
                         finish();
                     } else {
+                        Log.e(TAG, "❌ Order creation failed: " + error1.getMessage());
                         showToastMessage("Lỗi tạo đơn hàng: " + error1.getMessage());
+
+                        // Nếu tạo đơn hàng thất bại và đã trừ tiền, cần hoàn lại số dư
+                        if (isBalancePayment) {
+                            rollbackBalancePayment();
+                        }
+
                         finish();
                     }
                 });
+    }
+
+    private void rollbackBalancePayment() {
+        Log.d(TAG, "Rolling back balance payment...");
+
+        // Hoàn lại số dư nếu tạo đơn hàng thất bại
+        User currentUser = DataStoreManager.getUser();
+        double rollbackBalance = currentUser.getBalance() + mOrderBooking.getTotal();
+        currentUser.setBalance(rollbackBalance);
+        DataStoreManager.setUser(currentUser);
+
+        // Cập nhật lại Firebase
+        updateUserBalanceInFirebase(currentUser, null);
+
+        Log.d(TAG, "Balance rolled back to: " + rollbackBalance);
+        showToastMessage("⚠️ Đã hoàn lại số dư do lỗi tạo đơn hàng\n💰 Số dư: " + currentUser.getFormattedBalance());
     }
 }

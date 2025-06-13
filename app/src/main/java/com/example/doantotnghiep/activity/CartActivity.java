@@ -3,6 +3,7 @@ package com.example.doantotnghiep.activity;
 import static com.example.doantotnghiep.utils.GlobalFunction.showToastMessage;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -44,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CartActivity extends BaseActivity {
+    private static final String TAG = "CartActivity";
+
     ActivityCartBinding binding;
     private RecyclerView rcvCart;
     private LinearLayout layoutAddOrder;
@@ -82,12 +85,14 @@ public class CartActivity extends BaseActivity {
         initListener();
         initToolbar();
     }
+
     private void initToolbar() {
         ImageView imgToolbarBack = findViewById(R.id.img_toolbar_back);
         TextView tvToolbarTitle = findViewById(R.id.tv_toolbar_title);
         imgToolbarBack.setOnClickListener(view -> finish());
         tvToolbarTitle.setText(getString(R.string.label_cart));
     }
+
     private void initUi() {
         rcvCart = binding.rcvCart;
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -106,8 +111,10 @@ public class CartActivity extends BaseActivity {
         tvPriceVoucher = binding.tvPriceVoucher;
         tvCheckout = binding.tvCheckout;
     }
+
     private void initListener() {
         layoutAddOrder.setOnClickListener(v -> finish());
+
         layoutPaymentMethod.setOnClickListener(view -> {
             Bundle bundle = new Bundle();
             if (paymentMethodSelected != null) {
@@ -133,52 +140,91 @@ public class CartActivity extends BaseActivity {
             GlobalFunction.startActivity(CartActivity.this, VoucherActivity.class, bundle);
         });
 
-        tvCheckout.setOnClickListener(view -> {
-            if (listProductCart == null || listProductCart.isEmpty()) return;
-            if (paymentMethodSelected == null) {
-                showToastMessage(getString(R.string.label_choose_payment_method));
-                return;
-            }
-            if (addressSelected == null) {
-                showToastMessage(getString(R.string.label_choose_address));
-                return;
-            }
-
-            // Kiểm tra nếu thanh toán bằng số dư
-            if (paymentMethodSelected.getId() == Constant.TYPE_BALANCE) {
-                User currentUser = DataStoreManager.getUser();
-                if (currentUser.getBalance() < mAmount) {
-                    showToastMessage("Số dư không đủ! Số dư hiện tại: " + currentUser.getFormattedBalance() +
-                            ". Vui lòng nạp thêm tiền.");
-                    return;
-                }
-            }
-
-            Order orderBooking = new Order();
-            orderBooking.setId(System.currentTimeMillis());
-            orderBooking.setUserEmail(DataStoreManager.getUser().getEmail());
-            orderBooking.setDateTime(String.valueOf(System.currentTimeMillis()));
-            List<ProductOrder> products = new ArrayList<>();
-            for (Product product : listProductCart) {
-                products.add(new ProductOrder(product.getId(), product.getName(),
-                        product.getDescription(), product.getCount(),
-                        product.getPriceOneProduct(), product.getImage()));
-            }
-            orderBooking.setProducts(products);
-            orderBooking.setPrice(priceProduct);
-            if (voucherSelected != null) {
-                orderBooking.setVoucher(voucherSelected.getPriceDiscount(priceProduct));
-            }
-            orderBooking.setTotal(mAmount);
-            orderBooking.setPaymentMethod(paymentMethodSelected.getName());
-            orderBooking.setAddress(addressSelected);
-            orderBooking.setStatus(Order.STATUS_NEW);
-
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Constant.ORDER_OBJECT, orderBooking);
-            GlobalFunction.startActivity(CartActivity.this, PaymentActivity.class, bundle);
-        });
+        tvCheckout.setOnClickListener(view -> handleCheckout());
     }
+
+    private void handleCheckout() {
+        // Kiểm tra giỏ hàng
+        if (listProductCart == null || listProductCart.isEmpty()) {
+            showToastMessage("Giỏ hàng trống!");
+            return;
+        }
+
+        // Kiểm tra phương thức thanh toán
+        if (paymentMethodSelected == null) {
+            showToastMessage(getString(R.string.label_choose_payment_method));
+            return;
+        }
+
+        // Kiểm tra địa chỉ
+        if (addressSelected == null) {
+            showToastMessage(getString(R.string.label_choose_address));
+            return;
+        }
+
+        // Kiểm tra số dư nếu thanh toán bằng ví
+        if (paymentMethodSelected.getId() == Constant.TYPE_BALANCE) {
+            if (!checkBalancePayment()) {
+                return; // Không đủ số dư, dừng lại
+            }
+        }
+
+        // Tạo đơn hàng
+        createOrder();
+    }
+
+    private boolean checkBalancePayment() {
+        User currentUser = DataStoreManager.getUser();
+        double currentBalance = currentUser.getBalance();
+        double totalAmount = (double) mAmount;
+
+        Log.d(TAG, "Checking balance - Current: " + currentBalance + ", Required: " + totalAmount);
+
+        if (currentBalance < totalAmount) {
+            double shortage = totalAmount - currentBalance;
+            String message = "💳 SỐ DƯ KHÔNG ĐỦ!\n\n" +
+                    "💰 Số dư hiện tại: " + currentUser.getFormattedBalance() + "\n" +
+                    "🛒 Cần thanh toán: " + String.format("%,.0f", totalAmount) + "đ\n" +
+                    "❌ Thiếu: " + String.format("%,.0f", shortage) + "đ\n\n" +
+                    "Vui lòng:\n" +
+                    "• Nạp thêm tiền vào ví\n" +
+                    "• Hoặc chọn thanh toán tiền mặt";
+
+            showToastMessage(message);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void createOrder() {
+        Order orderBooking = new Order();
+        orderBooking.setId(System.currentTimeMillis());
+        orderBooking.setUserEmail(DataStoreManager.getUser().getEmail());
+        orderBooking.setDateTime(String.valueOf(System.currentTimeMillis()));
+
+        List<ProductOrder> products = new ArrayList<>();
+        for (Product product : listProductCart) {
+            products.add(new ProductOrder(product.getId(), product.getName(),
+                    product.getDescription(), product.getCount(),
+                    product.getPriceOneProduct(), product.getImage()));
+        }
+
+        orderBooking.setProducts(products);
+        orderBooking.setPrice(priceProduct);
+        if (voucherSelected != null) {
+            orderBooking.setVoucher(voucherSelected.getPriceDiscount(priceProduct));
+        }
+        orderBooking.setTotal(mAmount);
+        orderBooking.setPaymentMethod(paymentMethodSelected.getName());
+        orderBooking.setAddress(addressSelected);
+        orderBooking.setStatus(Order.STATUS_NEW);
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constant.ORDER_OBJECT, orderBooking);
+        GlobalFunction.startActivity(CartActivity.this, PaymentActivity.class, bundle);
+    }
+
     private void initData() {
         listProductCart = new ArrayList<>();
         listProductCart = ProductDatabase.getInstance(this).productDAO().getListProductCart();
@@ -194,6 +240,7 @@ public class CartActivity extends BaseActivity {
 
                 displayCountItemCart();
                 calculateTotalPrice();
+                updateCheckoutButton(); // Cập nhật nút checkout
                 EventBus.getDefault().post(new DisplayCartEvent());
             }
 
@@ -203,6 +250,7 @@ public class CartActivity extends BaseActivity {
                 cartAdapter.notifyItemChanged(position);
 
                 calculateTotalPrice();
+                updateCheckoutButton(); // Cập nhật nút checkout
                 EventBus.getDefault().post(new DisplayCartEvent());
             }
 
@@ -217,6 +265,7 @@ public class CartActivity extends BaseActivity {
         rcvCart.setAdapter(cartAdapter);
         calculateTotalPrice();
         displayCountItemCart();
+        updateCheckoutButton(); // Cập nhật nút checkout lần đầu
     }
 
     private void displayCountItemCart() {
@@ -256,14 +305,56 @@ public class CartActivity extends BaseActivity {
         tvAmount.setText(strAmount);
     }
 
+    // PHƯƠNG THỨC CHÍNH - CẬP NHẬT NÚT CHECKOUT
+    private void updateCheckoutButton() {
+        if (listProductCart == null || listProductCart.isEmpty()) {
+            // Giỏ hàng trống
+            tvCheckout.setEnabled(false);
+            tvCheckout.setBackgroundResource(R.drawable.bg_button_disable_corner_10);
+            tvCheckout.setText("Giỏ hàng trống");
+            return;
+        }
+
+        if (paymentMethodSelected == null || addressSelected == null) {
+            // Chưa chọn đủ thông tin
+            tvCheckout.setEnabled(false);
+            tvCheckout.setBackgroundResource(R.drawable.bg_button_disable_corner_10);
+            tvCheckout.setText("Vui lòng chọn đầy đủ thông tin");
+            return;
+        }
+
+        // Nếu thanh toán bằng số dư, kiểm tra số dư
+        if (paymentMethodSelected.getId() == Constant.TYPE_BALANCE) {
+            User currentUser = DataStoreManager.getUser();
+            double currentBalance = currentUser.getBalance();
+            double totalAmount = (double) mAmount;
+
+            if (currentBalance < totalAmount) {
+                // Không đủ số dư
+                tvCheckout.setEnabled(false);
+                tvCheckout.setBackgroundResource(R.drawable.bg_button_disable_corner_10);
+                double shortage = totalAmount - currentBalance;
+                tvCheckout.setText("Thiếu " + String.format("%,.0f", shortage) + "đ");
+                return;
+            }
+        }
+
+        // Tất cả điều kiện đều OK
+        tvCheckout.setEnabled(true);
+        tvCheckout.setBackgroundResource(R.drawable.bg_button_enable_corner_10);
+        tvCheckout.setText("Đặt hàng • " + mAmount + Constant.CURRENCY);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPaymentMethodSelectedEvent(PaymentMethodSelectedEvent event) {
         if (event.getPaymentMethod() != null) {
             paymentMethodSelected = event.getPaymentMethod();
             tvPaymentMethod.setText(paymentMethodSelected.getName());
         } else {
+            paymentMethodSelected = null;
             tvPaymentMethod.setText(getString(R.string.label_no_payment_method));
         }
+        updateCheckoutButton(); // Cập nhật nút checkout
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -272,8 +363,10 @@ public class CartActivity extends BaseActivity {
             addressSelected = event.getAddress();
             tvAddress.setText(addressSelected.getAddress());
         } else {
+            addressSelected = null;
             tvAddress.setText(getString(R.string.label_no_address));
         }
+        updateCheckoutButton(); // Cập nhật nút checkout
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -286,17 +379,26 @@ public class CartActivity extends BaseActivity {
                     + Constant.CURRENCY;
             tvPriceVoucher.setText(strPriceVoucher);
         } else {
+            voucherSelected = null;
             tvVoucher.setText(getString(R.string.label_no_voucher));
             tvNameVoucher.setText(getString(R.string.label_no_voucher));
             String strPriceVoucher = "-0" + Constant.CURRENCY;
             tvPriceVoucher.setText(strPriceVoucher);
         }
         calculateTotalPrice();
+        updateCheckoutButton(); // Cập nhật nút checkout
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onOrderSuccessEvent(OrderSuccessEvent event) {
         finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Cập nhật số dư khi quay lại màn hình
+        updateCheckoutButton();
     }
 
     @Override
