@@ -22,10 +22,12 @@ public class PaymentMethodAdapter extends RecyclerView.Adapter<PaymentMethodAdap
     public interface IClickPaymentMethodListener {
         void onClickPaymentMethodItem(PaymentMethod paymentMethod);
     }
+
     public PaymentMethodAdapter(List<PaymentMethod> list, IClickPaymentMethodListener listener) {
         this.listPaymentMethod = list;
         this.iClickPaymentMethodListener = listener;
     }
+
     @NonNull
     @Override
     public PaymentMethodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,14 +42,16 @@ public class PaymentMethodAdapter extends RecyclerView.Adapter<PaymentMethodAdap
 
         switch (paymentMethod.getId()) {
             case Constant.TYPE_GOPAY:
-                holder.binding.imgPaymentMethod.setImageResource(R.drawable.ic_gopay);
+                holder.binding.imgPaymentMethod.setImageResource(R.drawable.ic_money);
                 break;
-            case Constant.TYPE_ZALO_PAY:
-                holder.binding.imgPaymentMethod.setImageResource(R.drawable.ic_zalopay);
+            case Constant.TYPE_BALANCE:
+                holder.binding.imgPaymentMethod.setImageResource(R.drawable.ic_account_balance_wallet);
                 break;
         }
+
         holder.binding.tvName.setText(paymentMethod.getName());
         holder.binding.tvDescription.setText(paymentMethod.getDescription());
+
         if (paymentMethod.isSelected()) {
             holder.binding.imgStatus.setImageResource(R.drawable.ic_item_selected);
         } else {

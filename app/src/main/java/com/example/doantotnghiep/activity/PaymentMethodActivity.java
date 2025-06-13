@@ -42,11 +42,13 @@ public class PaymentMethodActivity extends BaseActivity {
         initUi();
         getListPaymentMethodFromFirebase();
     }
+
     private void getDataIntent() {
         Bundle bundle = getIntent().getExtras();
         if (bundle == null) return;
         paymentMethodSelectedId = bundle.getInt(Constant.PAYMENT_METHOD_ID, 0);
     }
+
     private void initUi() {
         RecyclerView rcvPaymentMethod = findViewById(R.id.rcv_payment_method);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -67,8 +69,9 @@ public class PaymentMethodActivity extends BaseActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void getListPaymentMethodFromFirebase() {
         resetListPaymentMethod();
+        // Thay đổi: ZaloPay -> Thanh toán bằng số dư
         listPaymentMethod.add(new PaymentMethod(1, getString(R.string.title_payment_method_cash), getString(R.string.title_payment_method_cash_desc)));
-        listPaymentMethod.add(new PaymentMethod(2, getString(R.string.title_payment_method_zalopay), getString(R.string.title_payment_method_zalopay_desc)));
+        listPaymentMethod.add(new PaymentMethod(2, getString(R.string.title_payment_method_balance), getString(R.string.title_payment_method_balance_desc)));
 
         if (paymentMethodSelectedId > 0 && listPaymentMethod != null) {
             for (PaymentMethod paymentMethod : listPaymentMethod) {

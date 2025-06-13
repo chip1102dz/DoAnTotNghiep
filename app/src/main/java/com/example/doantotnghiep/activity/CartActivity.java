@@ -30,6 +30,7 @@ import com.example.doantotnghiep.model.Order;
 import com.example.doantotnghiep.model.PaymentMethod;
 import com.example.doantotnghiep.model.Product;
 import com.example.doantotnghiep.model.ProductOrder;
+import com.example.doantotnghiep.model.User;
 import com.example.doantotnghiep.model.Voucher;
 import com.example.doantotnghiep.prefs.DataStoreManager;
 import com.example.doantotnghiep.utils.Constant;
@@ -142,6 +143,17 @@ public class CartActivity extends BaseActivity {
                 showToastMessage(getString(R.string.label_choose_address));
                 return;
             }
+
+            // Kiểm tra nếu thanh toán bằng số dư
+            if (paymentMethodSelected.getId() == Constant.TYPE_BALANCE) {
+                User currentUser = DataStoreManager.getUser();
+                if (currentUser.getBalance() < mAmount) {
+                    showToastMessage("Số dư không đủ! Số dư hiện tại: " + currentUser.getFormattedBalance() +
+                            ". Vui lòng nạp thêm tiền.");
+                    return;
+                }
+            }
+
             Order orderBooking = new Order();
             orderBooking.setId(System.currentTimeMillis());
             orderBooking.setUserEmail(DataStoreManager.getUser().getEmail());

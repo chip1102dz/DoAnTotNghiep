@@ -298,4 +298,14 @@
     <string name="error_update_balance">Lỗi khi cập nhật số dư: %s</string>
 
     <string name="notification_title">Thông báo</string>
+    <!-- Thêm vào strings.xml -->
+
+    <!-- Payment Method Strings -->
+    <string name="title_payment_method_balance">Thanh toán bằng số dư</string>
+    <string name="title_payment_method_balance_desc">Trừ tiền trực tiếp từ số dư tài khoản</string>
+
+    <!-- Messages -->
+    <string name="msg_insufficient_balance">Số dư không đủ! Vui lòng nạp thêm tiền.</string>
+    <string name="msg_balance_payment_success">Thanh toán thành công! Số dư đã được cập nhật.</string>
+    <string name="msg_payment_failed">Không thể thực hiện thanh toán!</string>
 </resources>

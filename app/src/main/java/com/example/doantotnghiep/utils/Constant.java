@@ -18,14 +18,11 @@ public class Constant {
     public static final String SEARCH_KEYWORD = "search_keyword";
 
     public static final int TYPE_GOPAY = 1;
-//    public static final int TYPE_CREDIT = 2;
-//    public static final int TYPE_BANK = 3;
-    public static final int TYPE_ZALO_PAY = 2;
+    public static final int TYPE_BALANCE = 2;
 
     public static final String ADMIN_EMAIL_FORMAT = "@admin.com";
 
     public static final String KEY_INTENT_VOUCHER_OBJECT = "voucher_object";
     public static final String KEY_INTENT_CATEGORY_OBJECT = "category_object";
     public static final String KEY_INTENT_PRODUCT_OBJECT = "product_object";
-
 }
