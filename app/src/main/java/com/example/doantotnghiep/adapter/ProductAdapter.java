@@ -44,16 +44,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         if (product.getSale() <= 0) {
             holder.binding.tvPrice.setVisibility(View.GONE);
-            String strPrice = product.getPrice() + Constant.CURRENCY;
+            String strPrice = String.format("%,d", product.getPrice() * 1000) + Constant.CURRENCY;
             holder.binding.tvPriceSale.setText(strPrice);
         } else {
             holder.binding.tvPrice.setVisibility(View.VISIBLE);
 
-            String strOldPrice = product.getPrice() + Constant.CURRENCY;
+            String strOldPrice = String.format("%,d", product.getPrice() * 1000) + Constant.CURRENCY;
             holder.binding.tvPrice.setText(strOldPrice);
             holder.binding.tvPrice.setPaintFlags(holder.binding.tvPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-            String strRealPrice = product.getRealPrice() + Constant.CURRENCY;
+            String strRealPrice = String.format("%,d", product.getRealPrice() * 1000) + Constant.CURRENCY;
             holder.binding.tvPriceSale.setText(strRealPrice);
         }
 

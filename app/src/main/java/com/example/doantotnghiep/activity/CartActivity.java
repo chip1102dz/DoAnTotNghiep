@@ -162,14 +162,60 @@ public class CartActivity extends BaseActivity {
             return;
         }
 
-        // Kiểm tra số dư nếu thanh toán bằng ví
+        // Kiểm tra số dư nếu thanh toán bằng ví - KIỂM TRA NGHIÊM NGẶT
         if (paymentMethodSelected.getId() == Constant.TYPE_BALANCE) {
-            if (!checkBalancePayment()) {
-                return; // Không đủ số dư, dừng lại
+            User currentUser = DataStoreManager.getUser();
+            if (currentUser == null) {
+                showToastMessage("❌ Lỗi thông tin người dùng");
+                return;
             }
+
+            double currentBalance = currentUser.getBalance();
+            double totalAmount = (double) mAmount;
+
+            Log.d(TAG, "=== FINAL BALANCE CHECK ===");
+            Log.d(TAG, "User: " + currentUser.getEmail());
+            Log.d(TAG, "Current balance: " + currentBalance);
+            Log.d(TAG, "Total amount: " + totalAmount);
+
+            if (currentBalance < totalAmount) {
+                double shortage = totalAmount - currentBalance;
+                String message = "💳 SỐ DƯ KHÔNG ĐỦ!\n\n" +
+                        "💰 Số dư hiện tại: " + currentUser.getFormattedBalance() + "\n" +
+                        "🛒 Cần thanh toán: " + String.format("%,.0f", totalAmount) + "đ\n" +
+                        "❌ Còn thiếu: " + String.format("%,.0f", shortage) + "đ\n\n" +
+                        "Vui lòng:\n" +
+                        "• Nạp thêm tiền vào ví\n" +
+                        "• Hoặc chọn thanh toán tiền mặt";
+
+                showToastMessage(message);
+                return; // DỪNG LẠI - KHÔNG CHO PHÉP THANH TOÁN
+            }
+
+            // Hiển thị xác nhận cuối cùng cho thanh toán bằng số dư
+            String confirmMessage = "💳 XÁC NHẬN THANH TOÁN\n\n" +
+                    "💰 Số dư hiện tại: " + currentUser.getFormattedBalance() + "\n" +
+                    "🛒 Số tiền thanh toán: " + String.format("%,.0f", totalAmount) + "đ\n" +
+                    "💵 Số dư sau thanh toán: " + String.format("%,.0f", currentBalance - totalAmount) + "đ\n\n" +
+                    "Bạn có chắc chắn muốn thanh toán?";
+
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("💳 Xác nhận thanh toán")
+                    .setMessage(confirmMessage)
+                    .setPositiveButton("✅ Xác nhận", (dialog, which) -> {
+                        Log.d(TAG, "User confirmed balance payment");
+                        createOrder();
+                    })
+                    .setNegativeButton("❌ Hủy", (dialog, which) -> {
+                        Log.d(TAG, "User cancelled balance payment");
+                    })
+                    .setCancelable(false)
+                    .show();
+            return;
         }
 
-        // Tạo đơn hàng
+        // Thanh toán tiền mặt - tạo đơn hàng trực tiếp
+        Log.d(TAG, "Processing cash payment");
         createOrder();
     }
 
@@ -275,10 +321,9 @@ public class CartActivity extends BaseActivity {
 
     private void calculateTotalPrice() {
         if (listProductCart == null || listProductCart.isEmpty()) {
-            String strZero = 0 + Constant.CURRENCY;
+            String strZero = "0" + Constant.CURRENCY;
             priceProduct = 0;
             tvPriceProduct.setText(strZero);
-
             mAmount = 0;
             tvAmount.setText(strZero);
             return;
@@ -286,26 +331,25 @@ public class CartActivity extends BaseActivity {
 
         int totalPrice = 0;
         for (Product product : listProductCart) {
-            totalPrice = totalPrice + product.getTotalPrice();
+            // SỬA: Tính với giá thật (x1000)
+            totalPrice = totalPrice + (product.getTotalPrice() * 1000);
         }
 
         priceProduct = totalPrice;
-        String strPriceProduct = priceProduct + Constant.CURRENCY;
+        String strPriceProduct = String.format("%,d", priceProduct) + Constant.CURRENCY;
         tvPriceProduct.setText(strPriceProduct);
 
         mAmount = totalPrice;
         if (voucherSelected != null) {
-            String strPriceVoucher = "-" + voucherSelected.getPriceDiscount(priceProduct)
-                    + Constant.CURRENCY;
+            int discount = (priceProduct * voucherSelected.getDiscount()) / 100;
+            String strPriceVoucher = "-" + String.format("%,d", discount) + Constant.CURRENCY;
             tvPriceVoucher.setText(strPriceVoucher);
-
-            mAmount = mAmount - voucherSelected.getPriceDiscount(priceProduct);
+            mAmount = mAmount - discount;
         }
-        String strAmount = mAmount + Constant.CURRENCY;
+        String strAmount = String.format("%,d", mAmount) + Constant.CURRENCY;
         tvAmount.setText(strAmount);
     }
 
-    // PHƯƠNG THỨC CHÍNH - CẬP NHẬT NÚT CHECKOUT
     private void updateCheckoutButton() {
         if (listProductCart == null || listProductCart.isEmpty()) {
             // Giỏ hàng trống
@@ -326,15 +370,27 @@ public class CartActivity extends BaseActivity {
         // Nếu thanh toán bằng số dư, kiểm tra số dư
         if (paymentMethodSelected.getId() == Constant.TYPE_BALANCE) {
             User currentUser = DataStoreManager.getUser();
-            double currentBalance = currentUser.getBalance();
-            double totalAmount = (double) mAmount;
+            if (currentUser != null) {
+                double currentBalance = currentUser.getBalance();
+                double totalAmount = (double) mAmount;
 
-            if (currentBalance < totalAmount) {
-                // Không đủ số dư
+                Log.d(TAG, "=== BALANCE CHECK ===");
+                Log.d(TAG, "Current balance: " + currentBalance);
+                Log.d(TAG, "Order total: " + totalAmount);
+
+                if (currentBalance < totalAmount) {
+                    // Không đủ số dư
+                    tvCheckout.setEnabled(false);
+                    tvCheckout.setBackgroundResource(R.drawable.bg_button_disable_corner_10);
+                    double shortage = totalAmount - currentBalance;
+                    tvCheckout.setText("Thiếu " + String.format("%,.0f", shortage) + "đ");
+                    return;
+                }
+            } else {
+                // Không có thông tin user
                 tvCheckout.setEnabled(false);
                 tvCheckout.setBackgroundResource(R.drawable.bg_button_disable_corner_10);
-                double shortage = totalAmount - currentBalance;
-                tvCheckout.setText("Thiếu " + String.format("%,.0f", shortage) + "đ");
+                tvCheckout.setText("Lỗi thông tin người dùng");
                 return;
             }
         }

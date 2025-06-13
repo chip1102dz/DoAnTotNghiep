@@ -137,23 +137,30 @@ public class User {
 
     // Phương thức để cập nhật số dư
     public void addBalance(double amount) {
-        this.balance += amount;
+        if (amount > 0) {
+            this.balance += amount;
+        }
     }
 
     public boolean deductBalance(double amount) {
+        // Thêm log để debug
+        android.util.Log.d("User", "Attempting to deduct: " + amount + " from balance: " + this.balance);
+
         // Kiểm tra số dư có đủ không (thêm buffer nhỏ để tránh lỗi làm tròn)
-        if (this.balance >= amount) {
+        if (this.balance >= amount && amount > 0) {
             this.balance -= amount;
             // Đảm bảo không bị âm do lỗi làm tròn
             if (this.balance < 0) {
                 this.balance = 0;
             }
+            android.util.Log.d("User", "Balance deducted successfully. New balance: " + this.balance);
             return true;
         }
+        android.util.Log.e("User", "Insufficient balance! Current: " + this.balance + ", Required: " + amount);
         return false;
     }
     public boolean hasEnoughBalance(double amount) {
-        return this.balance >= amount;
+        return this.balance >= amount && amount > 0;
     }
 
     //method lấy số dư còn thiếu
@@ -163,7 +170,6 @@ public class User {
         }
         return requiredAmount - this.balance;
     }
-
     public String toJSon() {
         Gson gson = new Gson();
         return gson.toJson(this);

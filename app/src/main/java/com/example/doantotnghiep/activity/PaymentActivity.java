@@ -75,41 +75,56 @@ public class PaymentActivity extends BaseActivity {
 
     private void processBalancePayment() {
         User currentUser = DataStoreManager.getUser();
+        if (currentUser == null) {
+            Log.e(TAG, "Current user is null!");
+            showToastMessage("Lỗi: Không tìm thấy thông tin người dùng");
+            finish();
+            return;
+        }
+
         double currentBalance = currentUser.getBalance();
         double orderTotal = (double) mOrderBooking.getTotal();
 
         Log.d(TAG, "=== BALANCE PAYMENT PROCESSING ===");
+        Log.d(TAG, "User email: " + currentUser.getEmail());
         Log.d(TAG, "Current balance: " + currentBalance);
         Log.d(TAG, "Order total: " + orderTotal);
 
         // Kiểm tra số dư lần cuối
         if (currentBalance < orderTotal) {
             double shortage = orderTotal - currentBalance;
-            Log.e(TAG, "Insufficient balance! Shortage: " + shortage);
+            Log.e(TAG, "Insufficient balance! Current: " + currentBalance + ", Required: " + orderTotal + ", Shortage: " + shortage);
 
-            showToastMessage("❌ SỐ DƯ KHÔNG ĐỦ!\n\n" +
-                    "💰 Số dư: " + currentUser.getFormattedBalance() + "\n" +
-                    "💳 Cần: " + String.format("%,.0f", orderTotal) + "đ\n" +
-                    "❌ Thiếu: " + String.format("%,.0f", shortage) + "đ");
+            String message = "❌ SỐ DƯ KHÔNG ĐỦ!\n\n" +
+                    "💰 Số dư hiện tại: " + currentUser.getFormattedBalance() + "\n" +
+                    "💳 Cần thanh toán: " + String.format("%,.0f", orderTotal) + "đ\n" +
+                    "❌ Thiếu: " + String.format("%,.0f", shortage) + "đ\n\n" +
+                    "Vui lòng nạp thêm tiền hoặc chọn thanh toán tiền mặt.";
+
+            showToastMessage(message);
             finish();
             return;
         }
 
-        // Thực hiện trừ tiền
-        double newBalance = currentBalance - orderTotal;
-        Log.d(TAG, "New balance after deduction: " + newBalance);
+        // Thực hiện trừ tiền - SỬ DỤNG PHƯƠNG THỨC deductBalance()
+        boolean deductSuccess = currentUser.deductBalance(orderTotal);
 
-        // Cập nhật số dư trong User object
-        currentUser.setBalance(newBalance);
+        if (!deductSuccess) {
+            Log.e(TAG, "Failed to deduct balance!");
+            showToastMessage("❌ Lỗi khi trừ tiền từ tài khoản");
+            finish();
+            return;
+        }
+
+        double newBalance = currentUser.getBalance();
+        Log.d(TAG, "Balance deducted successfully. New balance: " + newBalance);
 
         // Lưu vào SharedPreferences ngay lập tức
         DataStoreManager.setUser(currentUser);
-
-        Log.d(TAG, "Balance updated in DataStore: " + DataStoreManager.getUser().getBalance());
+        Log.d(TAG, "Updated balance saved to DataStore: " + DataStoreManager.getUser().getBalance());
 
         // Cập nhật vào Firebase
         updateUserBalanceInFirebase(currentUser, () -> {
-            // Callback sau khi cập nhật Firebase thành công
             Log.d(TAG, "Firebase balance update completed");
             createOrderFirebase();
         });
@@ -144,7 +159,7 @@ public class PaymentActivity extends BaseActivity {
             balanceUpdate.put("gender", user.getGender());
         }
 
-        Log.d(TAG, "Updating Firebase with balance: " + user.getBalance());
+        Log.d(TAG, "Updating Firebase with new balance: " + user.getBalance());
 
         MyApplication.get(this).getUserDatabaseReference(userKey)
                 .updateChildren(balanceUpdate)

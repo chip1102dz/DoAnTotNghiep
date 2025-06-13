@@ -46,8 +46,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         GlideUtils.loadUrl(product.getImage(), holder.binding.imgProduct);
         holder.binding.tvName.setText(product.getName());
-        String strPrice = product.getPriceOneProduct() + Constant.CURRENCY;
+
+        String strPrice = String.format("%,d", product.getPriceOneProduct() * 1000) + Constant.CURRENCY;
         holder.binding.tvPrice.setText(strPrice);
+
         holder.binding.tvDescription.setText(product.getDescription());
         String strQuantity = "x" + product.getCount();
         holder.binding.tvQuantity.setText(strQuantity);
@@ -62,9 +64,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             int newCount = count - 1;
             holder.binding.tvCount.setText(String.valueOf(newCount));
 
+
             int totalPrice = product.getPriceOneProduct() * newCount;
             product.setCount(newCount);
-            product.setTotalPrice(totalPrice);
+            product.setTotalPrice(totalPrice); // Lưu giá gốc để tính toán
 
             iClickCartListener.onClickUpdateItem(product, holder.getAdapterPosition());
         });
@@ -75,7 +78,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
             int totalPrice = product.getPriceOneProduct() * newCount;
             product.setCount(newCount);
-            product.setTotalPrice(totalPrice);
+            product.setTotalPrice(totalPrice); // Lưu giá gốc để tính toán
 
             iClickCartListener.onClickUpdateItem(product, holder.getAdapterPosition());
         });

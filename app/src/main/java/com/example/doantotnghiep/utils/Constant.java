@@ -2,7 +2,7 @@ package com.example.doantotnghiep.utils;
 
 public class Constant {
     public static final String MAIN_ADMIN = "main@admin.com";
-    public static final String CURRENCY = ".000vnd";
+    public static final String CURRENCY = "đ";
     public static final String CATEGORY_ID = "category_id";
     public static final String PRODUCT_ID = "product_id";
     public static final String PAYMENT_METHOD_ID = "payment_method_id";
